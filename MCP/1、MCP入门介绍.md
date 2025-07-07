@@ -1,9 +1,50 @@
 # MCP入门介绍
+
 ## 什么是MCP
-官网文档是这样描述的
 
+MCP英文全称 Model Context Protocol(MCP)，中文名称是模型上下文协议，是一个开放协议，它为应用程序向 LLM 提供上下文的方式进行了标准化。你可以将 MCP 想象成 AI 应用程序的 USB-C 接口。就像 USB-C 为设备连接各种外设和配件提供了标准化的方式一样，MCP 为 AI 模型连接各种数据源和工具提供了标准化的接口。
 
-## 资源链接
-MCP中文文档：https://mcp-docs.cn/introduction
-MCP英文文档：https://modelcontextprotocol.io/introduction
-MCP资源聚合：https://github.com/punkpeye/awesome-mcp-servers
+官网架构图：
+![架构图](https://cdn.nlark.com/yuque/0/2025/png/2488285/1751704040263-62888dd6-bbb6-4c20-8d7d-9b0fd8b001d1.png?x-oss-process=image%2Fformat%2Cwebp)
+
+如上图所示，整个的运行过程主要依赖三个部分：
+
+1. 带MCP客户端的主机：例如Cursor、Claude、Taro等AI开发工具
+2. MCP服务器：可用TypeScript/Python/Java等语言实现，负责桥接客户端与数据源/工具。工作流程为：
+   - 解析客户端请求
+   - 调用对应数据接口
+   - 执行工具功能
+   - 返回标准化结果
+3. 第三方服务集成：例如
+   - GitHub MCP：访问代码仓库
+   - Puppeteer MCP：网页自动化操作
+
+## MCP的作用
+
+1. 标准化接口：建立AI应用与数据源/工具间的通用连接协议，使不同的AI应用程序可以方便地与各种数据源和工具进行交互。
+2. 工作流程化：统一请求解析机制、自动路由到对应服务接口、标准化结果返回格式。
+3. 生态扩展性：支持通过第三方服务集成方式扩展能力。
+4. 开发效率提升：开发者可复用现有的MCP服务器实现模式，快速对接新数据源（数据库/API/云服务）
+
+## MCP的实现原理
+
+MCP 定义了一种通用的接口协议，用于 AI 应用程序与外部数据源或工具进行通信。当 AI 应用程序需要与外部服务交互时，它会通过 MCP 接口发送请求，请求中包含了对数据源或工具的描述和操作指令。
+
+MCP 服务器负责解析这些请求，并根据请求中的描述和指令，自动路由到对应的服务接口。这些服务接口可以是外部的数据库、API 接口、云服务，甚至是其他 AI 应用程序的 MCP 接口。
+
+MCP 服务器负责调用这些服务接口，并处理接口返回的结果。然后，将结果封装为 MCP 格式返回给 AI 应用程序，应用程序可以直接使用这个结果。
+
+## MCP的未来展望
+
+1. 生态整合：MCP 协议的标准化将使更多的 AI 应用程序和工具能够集成到 MCP 生态系统中，实现更丰富的功能和场景。
+2. 跨平台支持：MCP 定义了一种通用的接口协议，使得不同的 AI 应用程序可以在不同的操作系统和硬件平台上运行，实现跨平台的支持。
+3. 安全性提升：MCP 协议的标准化将增加 AI 应用程序与外部数据源或工具之间的安全性，防止数据泄露和攻击。
+4. 成本优化：MCP 协议的标准化将减少 AI 应用程序与外部数据源或工具之间的集成成本，提高应用程序的开发效率。
+
+## 最后分享一些MCP的资源链+接
+
+MCP中文文档：<https://mcp-docs.cn/introduction>
+MCP英文文档：<https://modelcontextprotocol.io/introduction>
+MCP资源聚合：<https://github.com/punkpeye/awesome-mcp-servers>
+
+后面会持续关注和分享最新AI信息和前沿技术
