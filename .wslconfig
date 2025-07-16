@@ -1,5 +1,0 @@
-[wsl2]
-## networkingMode=mirrored# 镜像模式（推荐）
-dnsTunneling=true         # DNS隧道（解决某些网络问题）
-firewall=true            # 启用防火墙集成
-autoProxy=true          # 自动同步Windows代理设置
