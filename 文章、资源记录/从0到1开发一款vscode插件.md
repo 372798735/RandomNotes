@@ -1,5 +1,5 @@
 # 从0到1开发一款vscode插件
-## 准备环境和初始化项目
+## 一、准备环境和初始化项目
 1. 安装脚手架：
 ```javascript
 // yo(Yeoman): 一个强大的脚手架工具，用于快速生成项目模板
@@ -10,7 +10,7 @@
 ```javascript
 yo code  // 这里根据自己需求选择对应技术栈
 ```
-## 开发vsCode插件功能：创建一个快速复制内容在复制内容下发粘贴内容
+## 二、开发vsCode插件功能：创建一个快速复制内容在复制内容下发粘贴内容
 1. 主要文件中的package.json
 ```javascript
 {
@@ -125,9 +125,9 @@ module.exports = {
 };
 
 ```
-## 本地运行和代码调试
+## 三、本地运行和代码调试
 直接运行 Run and Debug 就会起一个调试的 vscode 窗口
-## 一、打包插件
+## 四、打包插件
 1. 全局安装打包插件
 ```javascript
 // 安装插件
@@ -142,7 +142,7 @@ vsce package
 1. 安装本地插件：
    
 打包的 .vsix 文件可以直接安装到 vscode 插件市场当中，直接将打包的插件拖拽安装即可。
-## 二、发布插件到应用市场
+## 五、发布插件到应用市场
 1. 注册microsoft账号，官网地址：marketplace.visualstudio.com/
 2. 在开发者平台新建项目 https://dev.azure.com/，这里主要是生成token,用于发布插件
 3. 创建发布者，这里会将你的发布插件和这个创建者关联， https://link.juejin.cn/?target=https%3A%2F%2Faka.ms%2Fvscode-create-publisher
@@ -163,6 +163,7 @@ vsce publish 0.01 // 这里的 0.01是版本号，要和package.json里面配置
 
 插件官方地址：https://marketplace.visualstudio.com/
 注意：像 cursor 等ai编程工具可能不一定搜的到，因为它是镜像vscode的插件
+
 ## 参考文章链接
 [从0到1开发一款自己的vscode插件]https://juejin.cn/post/7010765441144455199?from=search-suggest
 [试开发一款vscode插件（上）]https://juejin.cn/post/7151062725517377549?searchId=202507261947484D4E3FC48B683C7D9548
