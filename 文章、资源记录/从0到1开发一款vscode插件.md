@@ -1,5 +1,9 @@
 # 从0到1开发一款vscode插件
-## 一、准备环境和初始化项目
+插件名称：[vs-quick-operation](https://marketplace.visualstudio.com/search?term=vs-quick-operation&target=VSCode&category=All%20categories&sortBy=Relevance)</br>
+使用快捷键：选中需要粘贴的内容，按快捷键： ctrl+shift+D
+## 功能预览：vscode插件实现快速粘贴复制
+![快速粘贴复制](https://cdn.nlark.com/yuque/0/2025/gif/2488285/1753830001145-e0a13906-6a87-4b81-8597-6069842881d3.gif)
+## 准备环境和初始化项目
 1. 安装脚手架：
 ```javascript
 // yo(Yeoman): 一个强大的脚手架工具，用于快速生成项目模板
@@ -8,16 +12,16 @@
 ```
 2. 使用脚手架快速创建vscode插件开发模板代码
 ```javascript
-yo code  // 这里根据自己需求选择对应技术栈
+yo code
 ```
-## 二、开发vsCode插件功能：创建一个快速复制内容在复制内容下发粘贴内容
-1. 主要文件中的package.json
+## 开发vsCode插件功能关键文件和代码：
+1. package.json
 ```javascript
 {
   "name": "vs-quick-operation",
   "displayName": "vs-quick-operation",
   "description": "exCode extension",
-  "publisher": "liushaolin",
+  "publisher": "发布者名称",
   "version": "0.0.1",
   "icon": "image/quickly.png",
   "engines": {
@@ -64,7 +68,7 @@ yo code  // 这里根据自己需求选择对应技术栈
 }
 
 ```
-2. 主要实现功能逻辑代码 extension.js
+2. extension.js（主要实现功能逻辑代码）
 ```javascript
 const vscode = require("vscode");
 
@@ -125,9 +129,11 @@ module.exports = {
 };
 
 ```
-## 三、本地运行和代码调试
-直接运行 Run and Debug 就会起一个调试的 vscode 窗口
-## 四、打包插件
+## 本地运行和代码调试
+直接运行 Run and Debug 就会起一个调试的 vscode 窗口，如图所示：
+
+![run and debug](https://cdn.nlark.com/yuque/0/2025/png/2488285/1753828588876-4f3a376b-badb-4431-bfa0-0bb9818cee81.png?x-oss-process=image%2Fformat%2Cwebp)
+## 打包插件
 1. 全局安装打包插件
 ```javascript
 // 安装插件
@@ -141,17 +147,17 @@ vsce package
 ```
 1. 安装本地插件：
    
-打包的 .vsix 文件可以直接安装到 vscode 插件市场当中，直接将打包的插件拖拽安装即可。
-## 五、发布插件到应用市场
-1. 注册microsoft账号，官网地址：marketplace.visualstudio.com/
+打包的 .vsix 文件可以直接安装到 vscode 当中，直接将打包的插件拖拽安装即可。
+## 发布插件到应用市场
+1. 注册microsoft账号，官网地址：https://marketplace.visualstudio.com/
 2. 在开发者平台新建项目 https://dev.azure.com/，这里主要是生成token,用于发布插件
-3. 创建发布者，这里会将你的发布插件和这个创建者关联， https://link.juejin.cn/?target=https%3A%2F%2Faka.ms%2Fvscode-create-publisher
+3. 创建发布者，这里会将你的发布插件和这个创建发布者关联， https://link.juejin.cn/?target=https%3A%2F%2Faka.ms%2Fvscode-create-publisher
 4. 在终端输入如下命令 登陆发布者账号，然后他会提示你输入token，将2步生成的token粘贴上去就可以了
 ```javascript
 vsce login "发布者名称" // 在第三步创建发布者名称
 ```
 5. 发布上线
-这里有个前提你的 package.json 文件里面要加上发布者名称，如下
+这里有个前提你的 package.json 文件里面要加上发布者名称(第三步创建的发布者名称)，如下代码示例：
 ```javascript
 "publisher":"发布者名称"
 ```
@@ -160,11 +166,11 @@ vsce login "发布者名称" // 在第三步创建发布者名称
 vsce publish 0.01 // 这里的 0.01是版本号，要和package.json里面配置的版本号要一一致
 ```
 6. 发布完插件几分钟就可以在插件市场中看到：
-
-插件官方地址：https://marketplace.visualstudio.com/
-注意：像 cursor 等ai编程工具可能不一定搜的到，因为它是镜像vscode的插件
+7. 插件官方地址：https://marketplace.visualstudio.com/
+注意：像 cursor 等ai编程工具可能不一定搜的到，因为cursor6月25号开始将插件市场改成了openvsx，具体发布可参考这篇文章([在Cursor中搜不到Vs Code插件解决方案](https://aicoding.juejin.cn/post/7522057991949303827))，本文不再赘述.
+![vscode插件](https://cdn.nlark.com/yuque/0/2025/png/2488285/1753828988657-9942888b-f5cf-4f85-983c-8d5c0223b09d.png?x-oss-process=image%2Fformat%2Cwebp)
 
 ## 参考文章链接
-[从0到1开发一款自己的vscode插件]https://juejin.cn/post/7010765441144455199?from=search-suggest
-[试开发一款vscode插件（上）]https://juejin.cn/post/7151062725517377549?searchId=202507261947484D4E3FC48B683C7D9548
-[试开发一款vscode插件（下）]https://juejin.cn/post/7151821927701544996?from=search-suggest
+[从0到1开发一款自己的vscode插件]https://juejin.cn/post/7010765441144455199?from=search-suggest<br/>
+[试开发一款vscode插件（上）]https://juejin.cn/post/7151062725517377549?searchId=202507261947484D4E3FC48B683C7D9548<br/>
+[试开发一款vscode插件（下）]https://juejin.cn/post/7151821927701544996?from=search-suggest<br/>
