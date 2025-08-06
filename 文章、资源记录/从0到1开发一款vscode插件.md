@@ -151,7 +151,7 @@ vsce package
 ## 发布插件到应用市场
 1. 注册microsoft账号，官网地址：https://marketplace.visualstudio.com/
 2. 在开发者平台新建项目 https://dev.azure.com/，这里主要是生成token,用于发布插件
-3. 创建发布者，这里会将你的发布插件和这个创建发布者关联， https://link.juejin.cn/?target=https%3A%2F%2Faka.ms%2Fvscode-create-publisher
+3. 创建发布者，这里会将你的发布插件和这个创建发布者关联， https://link.juejin.cn/?target=https%3A%2F%2Faka.ms%2Fvscode-create-ublispher
 4. 在终端输入如下命令 登陆发布者账号，然后他会提示你输入token，将2步生成的token粘贴上去就可以了
 ```javascript
 vsce login "发布者名称" // 在第三步创建发布者名称
@@ -166,7 +166,7 @@ vsce login "发布者名称" // 在第三步创建发布者名称
 vsce publish 0.01 // 这里的 0.01是版本号，要和package.json里面配置的版本号要一一致
 ```
 6. 发布完插件几分钟就可以在插件市场中看到：
-7. 插件官方地址：https://marketplace.visualstudio.com/
+7. 插件官方地址：**汇添富中****汇添富中**
 注意：像 cursor 等ai编程工具可能不一定搜的到，因为cursor6月25号开始将插件市场改成了openvsx，具体发布可参考这篇文章([在Cursor中搜不到Vs Code插件解决方案](https://aicoding.juejin.cn/post/7522057991949303827))，本文不再赘述.
 ![vscode插件](https://cdn.nlark.com/yuque/0/2025/png/2488285/1753828988657-9942888b-f5cf-4f85-983c-8d5c0223b09d.png?x-oss-process=image%2Fformat%2Cwebp)
 
