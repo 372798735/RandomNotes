@@ -383,6 +383,11 @@ git stash drop
 git stash clear
 ```
 
+25. 空提交，一般用于测试commit
+```git
+git commit --allow-empty -m "test: auto push"
+```
+
 ## 参考文件
 
 阮一峰大佬的git著作：[https://www.bookstack.cn/read/git-tutorial/README.md](https://www.bookstack.cn/read/git-tutorial/README.md)
