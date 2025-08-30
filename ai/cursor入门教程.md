@@ -145,7 +145,7 @@ Cursor 不会直接出原型，但我们可以用提示词让 Cursor 用 ASCII �
 ```
 ![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/487f9155a5744f1eb1dfd26e29fdaec6~tplv-k3u1fbpfcp-jj-mark:1600:0:0:0:q75.jpg#?w=1020&h=978&s=248332&e=png&b=1c1c1c)
 
-更好的设计：最近一个比较流行的方法是唐Cursor以HTML 的格式生成UI/UX 设计图，例如输入如下命令
+更好的设计：最近一个比较流行的方法是Cursor以HTML 的格式生成UI/UX 设计图，例如输入如下命令
 ```markdown
 参考文档 @需求分析文档.md  @技术方案.md   请以资深UI设计师身份，为微信谷歌翻译插件  设计 UI/UX 原型。要求：
 1. 遵循Material Design设计规范，采用移动端优先策略；
