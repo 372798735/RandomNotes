@@ -94,6 +94,30 @@ Auto-Run 模式则进一步，Agent将无需确认就能执行命令和文件操
    * 熟悉了工作方式后再在更大的项目中使用
    * 根据项目需求调整配置
 
+### 3.6、设置汉化版编辑器
+1. 打开命令面板：按Ctrl+Shift+P(Windows/Linux) 或 Cmd + Shift + p(Mac)
+2. 配置显示语言：输入：Configure Display Language=>选择该命令
+3. 选择中文：在弹出的语言列表中选择 zh-cn（简体中文），如果没有看到中文选项，需要先安装中文语言包
+4. 重启编辑器：按提示重启Cursor
+
+
+### 3.7 cursor替换成vs code插件市场
+1.  找到cursor中文件 product.json，文件路径为 "\cursor\resources\app\product.json"
+2. 编辑 product.json,将插件市场的cursor源设置成vscode的插件市场源，如下配置
+```vscode
+"extensionsGallery": {
+		"galleryId": "cursor",
+		"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
+		"itemUrl": "https://marketplace.visualstudio.com/items",
+		"resourceUrlTemplate": "https://{publisher}.vscode-unpkg.net/{publisher}/{name}/{version}/{path}",
+		"controlUrl": "https://main.vscode-cdn.net/extensions/marketplace.json",
+		"recommendationsUrl": "",
+		"nlsBaseUrl": "",
+		"publisherUrl": ""
+ },
+```
+3. 配置修改后需要重启编辑器后才能生效
+
 ## 四、使用限制
 
 ### 4.1 免费版限制
@@ -145,7 +169,7 @@ Cursor 不会直接出原型，但我们可以用提示词让 Cursor 用 ASCII �
 ```
 ![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/487f9155a5744f1eb1dfd26e29fdaec6~tplv-k3u1fbpfcp-jj-mark:1600:0:0:0:q75.jpg#?w=1020&h=978&s=248332&e=png&b=1c1c1c)
 
-更好的设计：最近一个比较流行的方法是唐Cursor以HTML 的格式生成UI/UX 设计图，例如输入如下命令
+更好的设计：最近一个比较流行的方法是Cursor以HTML 的格式生成UI/UX 设计图，例如输入如下命令
 ```markdown
 参考文档 @需求分析文档.md  @技术方案.md   请以资深UI设计师身份，为微信谷歌翻译插件  设计 UI/UX 原型。要求：
 1. 遵循Material Design设计规范，采用移动端优先策略；
@@ -173,3 +197,4 @@ Cursor 不会直接出原型，但我们可以用提示词让 Cursor 用 ASCII �
 - [Cursor官网](https://www.cursor.com)
 - [Cursor功能介绍](https://www.cursor.com/cn/features)
 - [Cursor GitHub仓库](https://github.com/getcursor/cursor)
+- [cursor替换vs code 插件市场](https://article.juejin.cn/post/7536084641448247359)
