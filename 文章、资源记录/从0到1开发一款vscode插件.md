@@ -165,7 +165,7 @@ vsce login "发布者名称" // 在第三步创建发布者名称
 ```javascript
 vsce publish 0.01 // 这里的 0.01是版本号，要和package.json里面配置的版本号要一一致
 ```
-6. 发布完插件几分钟就可以在插件市场中看到：
+6. 发布完插件几分钟就可以在[插件市场](https://marketplace.visualstudio.com/search?term=%E8%82%A1%E7%A5%A8&target=VSCode&category=All%20categories&sortBy=Relevance)中看到：
 7. 插件官方地址：**汇添富中****汇添富中**
 注意：像 cursor 等ai编程工具可能不一定搜的到，因为cursor6月25号开始将插件市场改成了openvsx，具体发布可参考这篇文章([在Cursor中搜不到Vs Code插件解决方案](https://aicoding.juejin.cn/post/7522057991949303827))，本文不再赘述.
 ![vscode插件](https://cdn.nlark.com/yuque/0/2025/png/2488285/1753828988657-9942888b-f5cf-4f85-983c-8d5c0223b09d.png?x-oss-process=image%2Fformat%2Cwebp)

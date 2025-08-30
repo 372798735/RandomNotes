@@ -65,11 +65,11 @@ Globs:
 - 使用 type 而不是 interface（除了 Props）
 ```
 ### 3.4三种AI辅助模式(Agent、Ask、Manual)详解：
-| 模式 | 用途 | 特点 | 适用场景 |
-|------|------|------|----------|
-| **Agent** | 让 AI 主动执行任务，自动完成代码编写、文件操作等 | • AI 可以自主调用工具和函数<br>• 能够自动创建、修改、删除文件<br>• 可以运行终端命令<br>• 适合复杂的多步骤任务 | • 创建新项目<br>• 重构代码<br>• 调试问题<br>• 自动化任务 | 
-| **Ask** | 与 AI 进行对话交流，获取建议和解释 | • 纯对话模式，不执行实际操作<br>• AI 提供建议、解释、代码示例<br>• 用户需要手动执行 AI 的建议<br>• 适合学习和咨询 | • 代码问题咨询<br>• 学习新技术<br>• 获取编程建议<br>• 代码审查 |
-| **Manual** | 手动控制 AI 的行为，精确指定要执行的操作 | • 用户完全控制 AI 的行为<br>• 可以精确指定要修改的文件和内容<br>• AI 按照用户的指令执行<br>• 适合精确的代码修改 | • 精确的代码修改<br>• 特定文件的编辑<br>• 需要严格控制的操作<br>• 调试特定问题 |
+| 模式       | 用途                                             | 特点                                                                                                              | 适用场景                                                                       |
+| ---------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Agent**  | 让 AI 主动执行任务，自动完成代码编写、文件操作等 | • AI 可以自主调用工具和函数<br>• 能够自动创建、修改、删除文件<br>• 可以运行终端命令<br>• 适合复杂的多步骤任务     | • 创建新项目<br>• 重构代码<br>• 调试问题<br>• 自动化任务                       |
+| **Ask**    | 与 AI 进行对话交流，获取建议和解释               | • 纯对话模式，不执行实际操作<br>• AI 提供建议、解释、代码示例<br>• 用户需要手动执行 AI 的建议<br>• 适合学习和咨询 | • 代码问题咨询<br>• 学习新技术<br>• 获取编程建议<br>• 代码审查                 |
+| **Manual** | 手动控制 AI 的行为，精确指定要执行的操作         | • 用户完全控制 AI 的行为<br>• 可以精确指定要修改的文件和内容<br>• AI 按照用户的指令执行<br>• 适合精确的代码修改   | • 精确的代码修改<br>• 特定文件的编辑<br>• 需要严格控制的操作<br>• 调试特定问题 |
 
 
 ### 3.5、Auto-Run Mode 全自动模式
@@ -93,6 +93,30 @@ Auto-Run 模式则进一步，Agent将无需确认就能执行命令和文件操
    * 先在小项目中尝试
    * 熟悉了工作方式后再在更大的项目中使用
    * 根据项目需求调整配置
+
+### 3.6、设置汉化版编辑器
+1. 打开命令面板：按Ctrl+Shift+P(Windows/Linux) 或 Cmd + Shift + p(Mac)
+2. 配置显示语言：输入：Configure Display Language=>选择该命令
+3. 选择中文：在弹出的语言列表中选择 zh-cn（简体中文），如果没有看到中文选项，需要先安装中文语言包
+4. 重启编辑器：按提示重启Cursor
+
+
+### 3.7 cursor替换成vs code插件市场
+1.  找到cursor中文件 product.json，文件路径为 "\cursor\resources\app\product.json"
+2. 编辑 product.json,将插件市场的cursor源设置成vscode的插件市场源，如下配置
+```vscode
+"extensionsGallery": {
+		"galleryId": "cursor",
+		"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
+		"itemUrl": "https://marketplace.visualstudio.com/items",
+		"resourceUrlTemplate": "https://{publisher}.vscode-unpkg.net/{publisher}/{name}/{version}/{path}",
+		"controlUrl": "https://main.vscode-cdn.net/extensions/marketplace.json",
+		"recommendationsUrl": "",
+		"nlsBaseUrl": "",
+		"publisherUrl": ""
+ },
+```
+3. 配置修改后需要重启编辑器后才能生效
 
 ## 四、使用限制
 
@@ -166,10 +190,11 @@ Cursor 不会直接出原型，但我们可以用提示词让 Cursor 用 ASCII �
 ### 5.2 总结
 1、要把AI编程模型理解成一个代码能力超强的人，逻辑性很强，你需要很清楚的表达自己的需求，否则AI可能会给你错误的答案。有时差一个字生成的代码就会有问题。
 2、每一步都要去跟进确认修改，直至完善。
-3、一个实现思路不行就换一个思路去实现功能。
+3、一个实现思路不行就换一个思路去实现功能。21
 
 ## 六、参考资源
 
 - [Cursor官网](https://www.cursor.com)
 - [Cursor功能介绍](https://www.cursor.com/cn/features)
 - [Cursor GitHub仓库](https://github.com/getcursor/cursor)
+- [cursor替换vs code 插件市场](https://article.juejin.cn/post/7536084641448247359)
