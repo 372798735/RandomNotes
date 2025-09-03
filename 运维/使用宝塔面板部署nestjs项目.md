@@ -20,3 +20,56 @@
 注意：安装版本后需要在上图中选择命令行版本，否则就算你安装了node上面没有选择node也是在终端找不到node的
 
 ### 2.2 部署nestjs项目
+1. 将node项目上传到服务器
+注意不要将 node_modules 包上传上来，因为很大，上传会很慢，线上下载即可
+![上传node项目](https://cdn.nlark.com/yuque/0/2025/png/2488285/1756746693588-22294b05-df04-4c3a-9872-6d30cf02abc6.png?x-oss-process=image%2Fformat%2Cwebp)
+2. 添加node项目和配置
+![添加node项目](https://cdn.nlark.com/yuque/0/2025/png/2488285/1756746136821-1e7aac85-8183-400e-aa57-f1aadd6d0186.png?x-oss-process=image%2Fformat%2Cwebp)
+![node项目配置](https://cdn.nlark.com/yuque/0/2025/png/2488285/1756746293740-eb039195-e9e8-4a3c-8e9d-3c81072f707a.png?x-oss-process=image%2Fformat%2Cwebp)
+3. nginx代理配置
+在新增项目时需要顺便把nginx反向代理给配置了
+![nginx反向代理配置](https://cdn.nlark.com/yuque/0/2025/png/2488285/1756746430626-e7c048cd-ccba-437f-b415-4f5509f415cf.png?x-oss-process=image%2Fformat%2Cwebp)
+
+### 2.3线上项目预览效果
+至此前后端项目已经部署上线，下图为上线的项目 登陆账号密码是: 18819270610 88888888
+![线上项目预览](https://cdn.nlark.com/yuque/0/2025/png/2488285/1756875321224-5657b46d-3f07-496d-9d61-5edf98ce6b11.png?x-oss-process=image%2Fformat%2Cwebp)
+
+## 3. 项目部署注意点
+1. 部署的过程中要学会面板的项目启动日志
+2. 端口要搞明白：
+   - 项目部署需要端口(这个端口属于服务器端口，需要在安全组那里开放)，外部网络才可以访问；
+   - 项目启动属于内部端口所以不占用服务器的端口；
+   - nginx反向代理的端口是服务器端口，即外网访问部署项目的端口；
+3. 本地项目启动请求后端接口需要在vite.config.ts文件中做跨域处理，但是部署到服务器请求接口的时候不会经过这个文件做代理的，
+   所以部署到线上需要后端那边做跨域处理
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 参考资料
+[宝塔面板部署前后端项目](https://blog.csdn.net/tsz22300/article/details/142602476):  https://blog.csdn.net/tsz22300/article/details/142602476
