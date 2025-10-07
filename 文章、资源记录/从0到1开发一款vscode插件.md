@@ -136,7 +136,6 @@ module.exports = {
 ## 打包插件
 1. 全局安装打包插件
 ```javascript
-// 安装插件
 npm install vsce -g
 // 查看安装成功与否
 vsce --version
