@@ -285,7 +285,7 @@ git commit -m 'first commit'
 // 下次你再执行推送或拉取操作时就不需要再指定上游分支了
 git remote add origin '远程项目地址'
 // 步骤六：提交项目到远程 或者推送并创建 master 分支
-git push -u origin 'master'// git push --set-upstream origin master
+git push -u origin 'master'// git push --set-upstream origin master # 第一次将本地分支推送到远程仓库时
 ```
 
 ###### 16、代码提交忽略husky校验
