@@ -1,5 +1,8 @@
 # phpstudy 启动 ThinkPHP 项目指南
 
+## 启动总览
+1. 下载 phpstudy 软件开启 mysql和nginx
+2. phpstudy 的软件管理 打开 phpAdmin 登陆数据库 账号：root 密码：root 然后新建数据库并导入sql文件
 ## 📦 项目信息
 - **项目类型**: ThinkPHP 5 + FastAdmin
 - **项目路径**: `D:/wai_bao/chao_wan_you_xi/php-server`
