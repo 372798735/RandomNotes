@@ -388,6 +388,11 @@ git stash clear
 git commit --allow-empty -m "test: auto push"
 ```
 
+26. 更新远程分支信息
+```git
+git fetch origin
+```
+
 ## 参考文件
 
 阮一峰大佬的git著作：[https://www.bookstack.cn/read/git-tutorial/README.md](https://www.bookstack.cn/read/git-tutorial/README.md)
