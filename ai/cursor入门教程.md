@@ -31,12 +31,16 @@ Cursor是一款真正意义上的AI代码编辑器，基于VSCode开发，集成
 3. 熟悉基本界面布局（与VSCode类似）
 
 ## 三、使用技巧
-### 3.1. git提交信息自动生成，如下图所示点击图标即可生成提交信息：
+
+### 3.1. git提交信息自动生成，如下图所示点击图标即可生成提交信息
+
 ![生成git提交信息](https://cdn.nlark.com/yuque/0/2025/png/2488285/1753588478803-cc9ff514-b87c-4b05-b505-5c152b5ff093.png?x-oss-process=image%2Fformat%2Cwebp)
 
 ### 3.2. 常用@命令讲解
+
 在cursor对话框中有个@命令选择
-- Files & Folders 引用的文件或者文件夹 
+
+- Files & Folders 引用的文件或者文件夹
   这两个是最常用的@命令，可以引用项目中的特定文件和文件夹作为上下文，如果要引用文件，直接将文件或文件夹拖拽到窗口会更方便。
 - Code代码解释
 - Docs 文档解析，可以快速知道这个文档的具体内容，实际开发中很有用。
@@ -46,10 +50,12 @@ Cursor是一款真正意义上的AI代码编辑器，基于VSCode开发，集成
 ![@命令](https://cdn.nlark.com/yuque/0/2025/png/2488285/1753593192012-196ba81f-f5d3-40df-9786-c3eaed7e9aae.png?x-oss-process=image%2Fformat%2Cwebp)
 
 ### 3.3 设置AI生成代码规则
+
 设置生成代码规则，提高工作效率，如下图所示
 ![rules](https://cdn.nlark.com/yuque/0/2025/png/2488285/1753590849263-4c944c3b-17ae-482b-93c0-b9d94c9236c8.png?x-oss-process=image%2Fformat%2Cwebp)
 
 生成 typeScript 规则：
+
 ```javascript
 Description:
 TypeScript 开发规范，确保类型安全和代码质量
@@ -64,63 +70,67 @@ Globs:
 - 公共函数必须包含 JSDoc 注释
 - 使用 type 而不是 interface（除了 Props）
 ```
-### 3.4三种AI辅助模式(Agent、Ask、Manual)详解：
+
+### 3.4三种AI辅助模式(Agent、Ask、Manual)详解
+
 | 模式       | 用途                                             | 特点                                                                                                              | 适用场景                                                                       |
 | ---------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | **Agent**  | 让 AI 主动执行任务，自动完成代码编写、文件操作等 | • AI 可以自主调用工具和函数<br>• 能够自动创建、修改、删除文件<br>• 可以运行终端命令<br>• 适合复杂的多步骤任务     | • 创建新项目<br>• 重构代码<br>• 调试问题<br>• 自动化任务                       |
 | **Ask**    | 与 AI 进行对话交流，获取建议和解释               | • 纯对话模式，不执行实际操作<br>• AI 提供建议、解释、代码示例<br>• 用户需要手动执行 AI 的建议<br>• 适合学习和咨询 | • 代码问题咨询<br>• 学习新技术<br>• 获取编程建议<br>• 代码审查                 |
 | **Manual** | 手动控制 AI 的行为，精确指定要执行的操作         | • 用户完全控制 AI 的行为<br>• 可以精确指定要修改的文件和内容<br>• AI 按照用户的指令执行<br>• 适合精确的代码修改   | • 精确的代码修改<br>• 特定文件的编辑<br>• 需要严格控制的操作<br>• 调试特定问题 |
 
-
 ### 3.5、Auto-Run Mode 全自动模式
+
 之前介绍的Agent模式，Agent会根据你的提示，判断是否要执行命令，如果需要执行命令，会提示你确认。
 Auto-Run 模式则进一步，Agent将无需确认就能执行命令和文件操作，朝着“全自动驾驶”又迈进了一步。
 使用建议：
+
 1. **谨慎使用**
 
-   * 建议在新项目或简单的 Demo 项目中使用
-   * 对于重要的生产项目，可以关闭此模式，防止误删、误改文件或者开启后，每次修改之后都要做下 Review
-   * 确保设置了合适的命令白名单/黑名单
+   - 建议在新项目或简单的 Demo 项目中使用
+   - 对于重要的生产项目，可以关闭此模式，防止误删、误改文件或者开启后，每次修改之后都要做下 Review
+   - 确保设置了合适的命令白名单/黑名单
 
 2. **监控执行过程**
 
-   * 虽然是自动执行，但要留意 Agent 的操作
-   * 如果发现不当操作，及时终止
-   * 保持文件的备份
+   - 虽然是自动执行，但要留意 Agent 的操作
+   - 如果发现不当操作，及时终止
+   - 保持文件的备份
 
 3. **渐进式采用**
 
-   * 先在小项目中尝试
-   * 熟悉了工作方式后再在更大的项目中使用
-   * 根据项目需求调整配置
+   - 先在小项目中尝试
+   - 熟悉了工作方式后再在更大的项目中使用
+   - 根据项目需求调整配置
 
 ### 3.6、设置汉化版编辑器
+
 1. 打开命令面板：按Ctrl+Shift+P(Windows/Linux) 或 Cmd + Shift + p(Mac)
 2. 配置显示语言：输入：Configure Display Language=>选择该命令
 3. 选择中文：在弹出的语言列表中选择 zh-cn（简体中文），如果没有看到中文选项，需要先安装中文语言包
 4. 重启编辑器：按提示重启Cursor
 
-
 ### 3.7 cursor替换成vs code插件市场
-1.  找到cursor中文件 product.json，文件路径为 "\cursor\resources\app\product.json"
+
+1. 找到cursor中文件 product.json，文件路径为 "\cursor\resources\app\product.json"
 2. 编辑 product.json,将插件市场的cursor源设置成vscode的插件市场源，如下配置
+
 ```vscode
 "extensionsGallery": {
-		"galleryId": "cursor",
-		"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
-		"itemUrl": "https://marketplace.visualstudio.com/items",
-		"resourceUrlTemplate": "https://{publisher}.vscode-unpkg.net/{publisher}/{name}/{version}/{path}",
-		"controlUrl": "https://main.vscode-cdn.net/extensions/marketplace.json",
-		"recommendationsUrl": "",
-		"nlsBaseUrl": "",
-		"publisherUrl": ""
+  "galleryId": "cursor",
+  "serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
+  "itemUrl": "https://marketplace.visualstudio.com/items",
+  "resourceUrlTemplate": "https://{publisher}.vscode-unpkg.net/{publisher}/{name}/{version}/{path}",
+  "controlUrl": "https://main.vscode-cdn.net/extensions/marketplace.json",
+  "recommendationsUrl": "",
+  "nlsBaseUrl": "",
+  "publisherUrl": ""
  },
 ```
 
 ### 3.8 cursor设置快捷键
 
 文件=》首选项=》键盘快捷方式
-
 
 3. 配置修改后需要重启编辑器后才能生效
 
@@ -138,12 +148,18 @@ Auto-Run 模式则进一步，Agent将无需确认就能执行命令和文件操
 - 可能提供更多高级功能和更高的使用配额
 
 ## 五、cursor实战(100%AI实现的项目)
+
 以创建一个chrome翻译插件为例，以下是用AI实现一个完成软件的大概流程，很多细化部分不会写进去。
+
 ### 5.1 创建项目
+
 例如创建一个 `ai-chrome-deepseek-translate-plugin` 项目，然后用 Cursor 打开这个项目，后续我们也会在该目录搭建项目
 建议通过版本控制的方式从仓库拉取这个项目，目的是为了避免 Cursor 给我们改出问题，我们还能通过版本回退。
+
 #### 5.1.1 写需求文档和技术架构文档
+
 1. 打开cursor聊天窗口，输入以下提示词，生成需求文档
+
 ```markdown
 实现一个 Chrome 浏览器翻译插件，需求是
 1. 可以对一篇文章进行完整翻译
@@ -154,9 +170,11 @@ Auto-Run 模式则进一步，Agent将无需确认就能执行命令和文件操
 
 帮我实现需求文档，这个只是需求文档，不包含技术实现。结果保存到 docs 目录下的 需求文档.md
 ```
+
 2. 生成技术方案文档
 因为这个翻译插件调用的是DeepSeek API,为了模型能够更好的理解所以在文档设置中添加这个文档。
 Markdown Preview Enhanced 查看架构流程图。
+
 ```markdown
 根据  @需求文档.md  生成一个技术方案文档，以 Chrome 浏览器插件的方式实现，包含项目目录结构。
 翻译采用 DeepSeek API，文档参见 @DeepSeek
@@ -165,17 +183,21 @@ Markdown Preview Enhanced 查看架构流程图。
 
 #### 5.1.2 设计页面（原型）或者UI
 ```
+
 1. 规划页面布局和实现步骤
 Cursor 不会直接出原型，但我们可以用提示词让 Cursor 用 ASCII 字符画出页面布局。这个 ASCII 字符画的页面布局，Cursor 在后面的代码实现中会参考。
+
 ```markdown
 根据 @需求文档.md @技术方案.md   文档，规划实现的步骤，按页面、功能模块划分，用ASCII字符画出页面布局。
 结果要分文件，例如：示意图-页面.md 或 示意图-页面-模块.md 等等。按照实现步骤对文件加上序号。
 页面设计简约，不需要冗余的功能，主要突出对网页文章的一键翻译和下载。
 结果以 Markdown 格式写入到 docs/ 目录下。
 ```
+
 ![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/487f9155a5744f1eb1dfd26e29fdaec6~tplv-k3u1fbpfcp-jj-mark:1600:0:0:0:q75.jpg#?w=1020&h=978&s=248332&e=png&b=1c1c1c)
 
 更好的设计：最近一个比较流行的方法是Cursor以HTML 的格式生成UI/UX 设计图，例如输入如下命令
+
 ```markdown
 参考文档 @需求分析文档.md  @技术方案.md   请以资深UI设计师身份，为微信谷歌翻译插件  设计 UI/UX 原型。要求：
 1. 遵循Material Design设计规范，采用移动端优先策略；
@@ -184,16 +206,20 @@ Cursor 不会直接出原型，但我们可以用提示词让 Cursor 用 ASCII �
 4. 使用标准HTML5+CSS3实现，输出单页完整HTML文件，包含注释说明组件用途。
 结果写入到项目 docs/ui-ux.html 文件中
 ```
+
 #### 5.1.3 项目搭建
+
 1. 快速项目搭建和根据步骤实现功能
 项目开始前设置一下模式，设置成全自动模式，就是不用我们手动确认，Cursor 会直接执行我们的指令。
 根据步骤一步一步实现功能就行。
 步骤一： 根据前面生成的文档搭建基础架构：
+
 ```markdown
 根据 @需求文档.md @技术方案.md 完成阶段一：基础架构搭建
 ```
 
 ### 5.2 总结
+
 1、要把AI编程模型理解成一个代码能力超强的人，逻辑性很强，你需要很清楚的表达自己的需求，否则AI可能会给你错误的答案。有时差一个字生成的代码就会有问题。
 2、每一步都要去跟进确认修改，直至完善。
 3、一个实现思路不行就换一个思路去实现功能。21
