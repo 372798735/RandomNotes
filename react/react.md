@@ -1,5 +1,7 @@
 # React
+
 ## 使用脚手架新建一个项目
+
 ```javascript
 /**
  * 方式一：不用下载脚手架，命令解释(推荐使用)：
@@ -23,352 +25,1047 @@
  */
  npx create-react-app --template typescript hook-test
 ```
-## 认识 react 的 hook
-### useState
-* useState 是 React 提供的一个 Hook 函数，用于在函数组件中添加状态。
-* 它返回一个数组，包含当前状态值和更新状态的函数。
-* 状态值可以是任意类型，初始值可以是任何值。
-* 更新状态的函数可以同步或异步调用，具体取决于使用方式。
-* 每次调用更新状态的函数时，组件会重新渲染，显示最新的状态值。
-1. 示例：简单使用
-```javascript
-import { useState } from "react";
 
-function App() {
-  const [num, setNum] = useState(1);
+---
+
+## Redux Toolkit 的 createSlice 详解
+
+### 什么是 Redux Toolkit 和 createSlice
+
+#### 传统 Redux 的痛点
+
+在传统的 Redux 中，创建状态管理需要编写大量样板代码：
+
+```javascript
+// 1. 定义 Action Types
+const INCREMENT = 'counter/INCREMENT'
+const DECREMENT = 'counter/DECREMENT'
+
+// 2. 创建 Action Creators
+const increment = () => ({ type: INCREMENT })
+const decrement = () => ({ type: DECREMENT })
+
+// 3. 编写 Reducer
+const initialState = { value: 0 }
+
+function counterReducer(state = initialState, action) {
+  switch (action.type) {
+    case INCREMENT:
+      return { ...state, value: state.value + 1 }
+    case DECREMENT:
+      return { ...state, value: state.value - 1 }
+    default:
+      return state
+  }
+}
+
+// 4. 配置 Store
+const store = createStore(counterReducer)
+```
+
+这种方式需要：
+
+- 手动定义 action types
+- 手动创建 action creators
+- 手动编写 switch-case 语句
+- 手动处理不可变更新（使用展开运算符）
+- **代码量大、重复性高、容易出错**
+
+---
+
+#### Redux Toolkit 的 createSlice 简化方案
+
+Redux Toolkit 的 `createSlice` 将上述所有步骤合并成一个函数调用：
+
+```typescript
+import { createSlice } from '@reduxjs/toolkit'
+
+// 一个 createSlice 搞定所有事情
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: { value: 0 },
+  reducers: {
+    // 直接定义 reducer 函数，自动生成 action
+    increment: (state) => {
+      state.value += 1  // 可以直接修改 state（内部使用 Immer）
+    },
+    decrement: (state) => {
+      state.value -= 1
+    },
+    incrementByAmount: (state, action) => {
+      state.value += action.payload
+    }
+  }
+})
+
+// 自动生成的 actions
+export const { increment, decrement, incrementByAmount } = counterSlice.actions
+
+// 导出 reducer
+export default counterSlice.reducer
+```
+
+---
+
+### createSlice 的优势
+
+#### 1. 代码量大幅减少
+
+- 传统 Redux: ~40 行代码
+- Redux Toolkit: ~15 行代码
+- **减少 60% 以上的代码量**
+
+#### 2. 自动生成 Action Creators
+
+```typescript
+// 不需要手动写这些了
+const increment = () => ({ type: 'counter/increment' })
+
+// createSlice 自动生成
+counterSlice.actions.increment()
+// 结果: { type: 'counter/increment' }
+```
+
+#### 3. 可以直接"修改"状态（内部使用 Immer）
+
+```typescript
+// 传统 Redux（必须不可变更新）
+case INCREMENT:
+  return {
+    ...state,
+    value: state.value + 1,
+    nested: {
+      ...state.nested,
+      count: state.nested.count + 1
+    }
+  }
+
+// Redux Toolkit（看起来像直接修改）
+increment: (state) => {
+  state.value += 1
+  state.nested.count += 1  // 简洁明了
+}
+```
+
+**原理**: createSlice 内部使用 [Immer](https://immerjs.github.io/immer/) 库，允许你写"可变"代码，但实际返回的是不可变更新。
+
+#### 4. TypeScript 支持更好
+
+```typescript
+interface CounterState {
+  value: number
+  loading: boolean
+}
+
+const initialState: CounterState = {
+  value: 0,
+  loading: false
+}
+
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState,
+  reducers: {
+    // TypeScript 自动推导类型
+    increment: (state) => {
+      state.value += 1  // ✅ 类型安全
+      state.invalid += 1  // ❌ TypeScript 报错
+    }
+  }
+})
+```
+
+---
+
+### 实际项目应用示例
+
+#### 示例：用户管理模块
+
+```typescript
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
+interface User {
+  id: string
+  name: string
+  email: string
+}
+
+interface UserState {
+  list: User[]
+  loading: boolean
+  error: string | null
+}
+
+const initialState: UserState = {
+  list: [],
+  loading: false,
+  error: null
+}
+
+const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    // 开始加载
+    fetchUsersStart: (state) => {
+      state.loading = true
+      state.error = null
+    },
+    // 加载成功
+    fetchUsersSuccess: (state, action: PayloadAction<User[]>) => {
+      state.loading = false
+      state.list = action.payload
+    },
+    // 加载失败
+    fetchUsersFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false
+      state.error = action.payload
+    },
+    // 添加用户
+    addUser: (state, action: PayloadAction<User>) => {
+      state.list.push(action.payload)
+    },
+    // 删除用户
+    removeUser: (state, action: PayloadAction<string>) => {
+      state.list = state.list.filter(user => user.id !== action.payload)
+    },
+    // 更新用户
+    updateUser: (state, action: PayloadAction<User>) => {
+      const index = state.list.findIndex(u => u.id === action.payload.id)
+      if (index !== -1) {
+        state.list[index] = action.payload
+      }
+    }
+  }
+})
+
+export const {
+  fetchUsersStart,
+  fetchUsersSuccess,
+  fetchUsersFailure,
+  addUser,
+  removeUser,
+  updateUser
+} = userSlice.actions
+
+export default userSlice.reducer
+```
+
+#### 在组件中使用
+
+```typescript
+import { useDispatch, useSelector } from 'react-redux'
+import { addUser, removeUser } from './userSlice'
+
+function UserList() {
+  const dispatch = useDispatch()
+  const { list, loading } = useSelector(state => state.user)
+
+  const handleAdd = () => {
+    dispatch(addUser({
+      id: '123',
+      name: 'John',
+      email: 'john@example.com'
+    }))
+  }
+
+  const handleRemove = (id: string) => {
+    dispatch(removeUser(id))
+  }
 
   return (
-    <div onClick={() => setNum(num + 1)}>{num}</div>
-  );
+    <div>
+      {loading ? 'Loading...' : list.map(user => (
+        <div key={user.id}>
+          {user.name}
+          <button onClick={() => handleRemove(user.id)}>删除</button>
+        </div>
+      ))}
+      <button onClick={handleAdd}>添加用户</button>
+    </div>
+  )
 }
-export default App;
 ```
-2. 示例：需要处理复杂的初始数据
-```javascript
-const [num, setNum] = useState(() => {
-    const num1 = 1 + 2;
-    const num2 = 2 + 3;
-    return num1 + num2
-});
-```
-### useEffect
-* useEffect 是 React 提供的一个 Hook 函数，用于在函数组件中执行副作用操作。
-* 它可以在组件渲染完成后执行，也可以在状态变化时执行。
-* useEffect 接受两个参数：一个回调函数和一个依赖数组。
-* 回调函数在组件渲染完成后执行，依赖数组指定了哪些状态变化时需要重新执行回调函数。
-* 如果依赖数组为空，回调函数只会在组件挂载时执行一次。
-* 如果依赖数组包含状态变量，回调函数会在状态变化时执行。
-* 使用场景：
-    * 数据获取：在组件挂载时获取数据，或在依赖的状态变量变化时重新获取数据。
-    * 订阅：在组件挂载时订阅事件，或在依赖的状态变量变化时重新订阅。
-    * 手动修改 DOM：在组件挂载时修改 DOM，或在依赖的状态变量变化时重新修改 DOM。
-1. 示例：简单使用
-```javascript
-import { useState, useEffect } from "react";
 
-function App() {
-  const [num, setNum] = useState(1);
+---
+
+### 简历中的实际含义
+
+当简历写"**基于 Redux Toolkit 的 createSlice 简化状态管理代码**"时，表示你：
+
+1. ✅ **了解传统 Redux 的痛点**（样板代码多）
+2. ✅ **掌握现代化的状态管理方案**（Redux Toolkit）
+3. ✅ **能够编写更简洁、可维护的代码**
+4. ✅ **理解不可变更新和 Immer 的原理**
+5. ✅ **具备优化代码结构的能力**
+
+这是一个**技术升级和代码质量提升**的体现，说明你能够选择合适的工具来提高开发效率和代码质量。
+
+---
+
+### 总结
+
+**createSlice 简化了什么？**
+
+- ❌ 不需要手动定义 action types
+- ❌ 不需要手动创建 action creators
+- ❌ 不需要编写 switch-case 语句
+- ❌ 不需要手动处理不可变更新
+- ✅ 一个函数搞定所有状态管理逻辑
+- ✅ 代码量减少 60%+
+- ✅ 更好的 TypeScript 支持
+- ✅ 更易维护和理解
+
+这就是"简化状态管理代码"的核心含义！
+
+---
+
+## React Query 管理服务端状态与缓存优化
+
+### 什么是 React Query（TanStack Query）
+
+React Query（现在称为 TanStack Query）是一个强大的服务端状态管理库，专门用于处理异步数据的获取、缓存、同步和更新。
+
+### 为什么需要 React Query？
+
+#### 传统方式的问题
+
+在没有 React Query 之前，我们通常这样管理服务端数据：
+
+```typescript
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+
+function UserList() {
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    console.log(num);
-  }, [num]);
+    const fetchUsers = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await axios.get('/api/users')
+        setUsers(response.data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error}</div>
 
   return (
-    <div onClick={() => setNum(num + 1)}>{num}</div>
-  );
+    <div>
+      {users.map(user => (
+        <div key={user.id}>{user.name}</div>
+      ))}
+    </div>
+  )
 }
-export default App;
 ```
-### useLayoutEffect
-* useLayoutEffect 是 React 提供的一个 Hook 函数，用于在函数组件中执行副作用操作。
-* 它的行为与 useEffect 类似，但是会在 DOM 更新后同步执行。
-* 这意味着在 useLayoutEffect 中对 DOM 的修改会立即生效，而 useEffect 中的修改会在组件渲染完成后异步执行。
-* 使用场景：
-    * 手动修改 DOM：在组件挂载时修改 DOM，或在依赖的状态变量变化时重新修改 DOM。
-    * 测量 DOM 元素：在组件挂载时测量 DOM 元素的尺寸或位置，或在依赖的状态变量变化时重新测量。
-    * 绝大多数情况下，用useEffect,它能避免因为 effect 逻辑执行时间长导致页面卡顿(掉帧)。
-    * 如果，才考虑使用 useLayoutEffect。
-1. 示例：简单使用
-```javascript
-import { useState, useLayoutEffect } from "react";
 
-function App() {
-  const [num, setNum] = useState(1);
-  useLayoutEffect(() => {
-    console.log(num);
-  }, [num]);
+**存在的问题**：
+- ❌ 需要手动管理 loading、error、data 三个状态
+- ❌ 没有缓存机制，每次组件挂载都会重新请求
+- ❌ 多个组件请求同一数据会导致重复请求
+- ❌ 无法轻松实现数据预取、后台刷新
+- ❌ 数据过期管理复杂
+- ❌ 乐观更新和回滚困难
+
+---
+
+### React Query 的解决方案
+
+使用 React Query，上述代码可以简化为：
+
+```typescript
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+
+function UserList() {
+  const { data: users, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const response = await axios.get('/api/users')
+      return response.data
+    }
+  })
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
+
   return (
-    <div onClick={() => setNum(num + 1)}>{num}</div>
-  );
+    <div>
+      {users.map(user => (
+        <div key={user.id}>{user.name}</div>
+      ))}
+    </div>
+  )
 }
-export default App;
 ```
-### useReducer
-* useReducer 是 React 提供的一个 Hook 函数，用于在函数组件中管理状态。
-* 它类似于 useState，但是更适合处理复杂的状态逻辑。
-* useReducer 接受一个 reducer 函数和一个初始状态值作为参数。
-* reducer 函数定义了状态的更新逻辑，根据当前状态和操作返回新的状态。
-* useReducer 返回一个数组，包含当前状态值和 dispatch 函数。
-* dispatch 函数用于触发状态更新，调用 reducer 函数并传递操作参数。
-* 使用场景：
-    * 状态逻辑复杂：当组件的状态逻辑比较复杂，包含多个状态变量和多个操作时，useReducer 更适合管理状态。
-    * 状态逻辑共享：当多个组件需要共享相同的状态逻辑时，使用 useReducer 可以避免重复编写状态逻辑代码。
-    * 写一次方法多个地方可以使用
-1. 示例：简单使用
-```javascript
-import { useReducer } from "react";
 
-function reducer(state, action) {
-  switch (action.type) {
-    case "increment":
-      return { num: state.num + 1 };
-    case "decrement":
-      return { num: state.num - 1 };
-    default:
-      return state;
+**优势**：
+- ✅ 自动管理 loading、error、data 状态
+- ✅ 自动缓存数据
+- ✅ 自动去重请求
+- ✅ 后台自动刷新
+- ✅ 支持数据预取
+- ✅ 内置重试机制
+
+---
+
+### React Query 的核心概念
+
+#### 1. Query（查询）
+
+用于获取数据的基本单位，每个查询都有唯一的 `queryKey`。
+
+```typescript
+// 简单查询
+const { data } = useQuery({
+  queryKey: ['users'],
+  queryFn: fetchUsers
+})
+
+// 带参数的查询
+const { data } = useQuery({
+  queryKey: ['user', userId],  // queryKey 包含参数
+  queryFn: () => fetchUserById(userId)
+})
+
+// 依赖查询（只有 userId 存在时才执行）
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUserById(userId),
+  enabled: !!userId  // 条件查询
+})
+```
+
+#### 2. Mutation（变更）
+
+用于修改服务端数据（POST、PUT、DELETE 等操作）。
+
+```typescript
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+function AddUser() {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: (newUser) => {
+      return axios.post('/api/users', newUser)
+    },
+    onSuccess: () => {
+      // 变更成功后，使 users 查询失效并重新获取
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    }
+  })
+
+  const handleAdd = () => {
+    mutation.mutate({
+      name: 'John',
+      email: 'john@example.com'
+    })
   }
-}  
-function App() {
-  const [state, dispatch] = useReducer(reducer, { num: 1 });
+
+  return (
+    <button onClick={handleAdd} disabled={mutation.isPending}>
+      {mutation.isPending ? 'Adding...' : 'Add User'}
+    </button>
+  )
+}
+```
+
+#### 3. Query Invalidation（查询失效）
+
+让缓存的数据过期，触发重新获取。
+
+```typescript
+// 使特定查询失效
+queryClient.invalidateQueries({ queryKey: ['users'] })
+
+// 使所有以 'users' 开头的查询失效
+queryClient.invalidateQueries({ queryKey: ['users'], exact: false })
+
+// 立即重新获取
+queryClient.invalidateQueries({
+  queryKey: ['users'],
+  refetchType: 'active' // 只重新获取活跃的查询
+})
+```
+
+---
+
+### 缓存策略优化
+
+#### 1. 缓存时间配置
+
+```typescript
+const { data } = useQuery({
+  queryKey: ['users'],
+  queryFn: fetchUsers,
+  // 数据被认为是新鲜的时间（默认 0）
+  staleTime: 5 * 60 * 1000,  // 5分钟内不会重新请求
+
+  // 未使用的数据在缓存中保留的时间（默认 5分钟）
+  gcTime: 10 * 60 * 1000,  // 10分钟后清除缓存
+})
+```
+
+**staleTime vs gcTime**：
+- `staleTime`: 数据"新鲜"的时间，在此期间不会发起新请求
+- `gcTime`: 未使用的数据在内存中保留的时间
+
+```
+请求 ─→ 新鲜数据 ─→ 过期数据 ─→ 垃圾回收
+       (staleTime)  (gcTime)
+```
+
+#### 2. 后台自动刷新
+
+```typescript
+const { data } = useQuery({
+  queryKey: ['users'],
+  queryFn: fetchUsers,
+  // 窗口重新获得焦点时自动刷新
+  refetchOnWindowFocus: true,  // 默认 true
+
+  // 网络重新连接时刷新
+  refetchOnReconnect: true,  // 默认 true
+
+  // 组件挂载时刷新
+  refetchOnMount: true,  // 默认 true
+
+  // 定时轮询
+  refetchInterval: 30000,  // 每30秒刷新一次
+
+  // 只在窗口聚焦时轮询
+  refetchIntervalInBackground: false
+})
+```
+
+#### 3. 预取数据（Prefetching）
+
+在用户需要之前提前加载数据：
+
+```typescript
+import { useQueryClient } from '@tanstack/react-query'
+
+function UserListItem({ userId }) {
+  const queryClient = useQueryClient()
+
+  // 鼠标悬停时预取用户详情
+  const handleMouseEnter = () => {
+    queryClient.prefetchQuery({
+      queryKey: ['user', userId],
+      queryFn: () => fetchUserById(userId),
+      staleTime: 10000  // 10秒内不重复预取
+    })
+  }
+
+  return (
+    <div onMouseEnter={handleMouseEnter}>
+      <Link to={`/users/${userId}`}>查看详情</Link>
+    </div>
+  )
+}
+```
+
+#### 4. 乐观更新（Optimistic Updates）
+
+在请求完成前先更新 UI，失败时回滚：
+
+```typescript
+const mutation = useMutation({
+  mutationFn: updateUser,
+  onMutate: async (newUser) => {
+    // 取消正在进行的查询
+    await queryClient.cancelQueries({ queryKey: ['users'] })
+
+    // 保存当前数据（用于回滚）
+    const previousUsers = queryClient.getQueryData(['users'])
+
+    // 乐观更新
+    queryClient.setQueryData(['users'], (old) => {
+      return old.map(user =>
+        user.id === newUser.id ? newUser : user
+      )
+    })
+
+    // 返回上下文（用于回滚）
+    return { previousUsers }
+  },
+  onError: (err, newUser, context) => {
+    // 失败时回滚
+    queryClient.setQueryData(['users'], context.previousUsers)
+  },
+  onSettled: () => {
+    // 完成后重新获取数据
+    queryClient.invalidateQueries({ queryKey: ['users'] })
+  }
+})
+```
+
+#### 5. 分页查询
+
+```typescript
+import { useQuery } from '@tanstack/react-query'
+
+function PaginatedUsers() {
+  const [page, setPage] = useState(1)
+
+  const { data, isLoading, isPreviousData } = useQuery({
+    queryKey: ['users', page],
+    queryFn: () => fetchUsers(page),
+    // 保留前一页数据，切换时不显示 loading
+    keepPreviousData: true
+  })
+
   return (
     <div>
-      <div>{state.num}</div>
-      <button onClick={() => dispatch({ type: "increment" })}>+</button>
-      <button onClick={() => dispatch({ type: "decrement" })}>-</button>
-    </div>
-  );
-}
-export default App;
-```
-### useRef
-* useRef 是 React 提供的一个 Hook 函数，用于在函数组件中创建一个可变的引用对象。
-* 它可以用于存储任何值，例如 DOM 元素、定时器 ID、组件实例等。
-* useRef 返回一个对象，该对象的 current 属性指向存储的值。
-* 使用场景：
-    * 访问 DOM 元素：当需要在函数组件中访问 DOM 元素时，使用 useRef 可以避免使用 ref 属性。
-    * 存储可变值：当需要在函数组件中存储一个可变的值，例如组件实例、定时器 ID 等时，使用 useRef 可以避免使用 useState 导致的重新渲染。
-1. 示例：简单使用
-```javascript
-import { useRef } from "react";
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          {data.users.map(user => (
+            <div key={user.id}>{user.name}</div>
+          ))}
 
-function App() {
-  const numRef = useRef(1);
+          <button
+            onClick={() => setPage(old => Math.max(old - 1, 1))}
+            disabled={page === 1}
+          >
+            上一页
+          </button>
+
+          <button
+            onClick={() => setPage(old => old + 1)}
+            disabled={isPreviousData || !data.hasMore}
+          >
+            下一页
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+```
+
+#### 6. 无限滚动
+
+```typescript
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+function InfiniteUsers() {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteQuery({
+    queryKey: ['users'],
+    queryFn: ({ pageParam = 1 }) => fetchUsers(pageParam),
+    getNextPageParam: (lastPage, pages) => {
+      // 返回下一页的参数，返回 undefined 表示没有更多数据
+      return lastPage.hasMore ? pages.length + 1 : undefined
+    }
+  })
+
   return (
     <div>
-      <div>{numRef.current}</div>
-      <button onClick={() => numRef.current++}>+</button>
-      <button onClick={() => numRef.current--}>-</button>
+      {data?.pages.map((page, i) => (
+        <div key={i}>
+          {page.users.map(user => (
+            <div key={user.id}>{user.name}</div>
+          ))}
+        </div>
+      ))}
+
+      <button
+        onClick={() => fetchNextPage()}
+        disabled={!hasNextPage || isFetchingNextPage}
+      >
+        {isFetchingNextPage
+          ? 'Loading...'
+          : hasNextPage
+          ? '加载更多'
+          : '没有更多了'}
+      </button>
     </div>
-  );
+  )
 }
-export default App;
 ```
 
-### useContext
-* 用于**跨组件共享数据**，避免 props 层层传递
-* 需要三步：① 创建 Context → ② Provider 提供数据 → ③ useContext 消费数据
+---
 
-**创建和使用示例：**
-```javascript
-// 1. 创建 Context
-import { createContext } from 'react';
-export const ThemeContext = createContext();
+### 完整实战示例：用户管理模块
 
-// 2. 使用 Provider 提供数据
-function App() {
-  const theme = { color: 'blue', bg: 'lightgray' };
+```typescript
+// api/users.ts
+import axios from 'axios'
+
+export interface User {
+  id: string
+  name: string
+  email: string
+}
+
+export const fetchUsers = async (): Promise<User[]> => {
+  const { data } = await axios.get('/api/users')
+  return data
+}
+
+export const fetchUserById = async (id: string): Promise<User> => {
+  const { data } = await axios.get(`/api/users/${id}`)
+  return data
+}
+
+export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
+  const { data } = await axios.post('/api/users', user)
+  return data
+}
+
+export const updateUser = async (user: User): Promise<User> => {
+  const { data } = await axios.put(`/api/users/${user.id}`, user)
+  return data
+}
+
+export const deleteUser = async (id: string): Promise<void> => {
+  await axios.delete(`/api/users/${id}`)
+}
+```
+
+```typescript
+// hooks/useUsers.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import * as api from '../api/users'
+
+// 获取用户列表
+export const useUsers = () => {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: api.fetchUsers,
+    staleTime: 5 * 60 * 1000,  // 5分钟内认为数据是新鲜的
+  })
+}
+
+// 获取单个用户
+export const useUser = (id: string) => {
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: () => api.fetchUserById(id),
+    enabled: !!id,  // 只有 id 存在时才查询
+  })
+}
+
+// 创建用户
+export const useCreateUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: api.createUser,
+    onSuccess: (newUser) => {
+      // 方法1: 使查询失效，触发重新获取
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+
+      // 方法2: 直接更新缓存（性能更好）
+      // queryClient.setQueryData(['users'], (old) => [...old, newUser])
+    },
+  })
+}
+
+// 更新用户
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: api.updateUser,
+    // 乐观更新
+    onMutate: async (updatedUser) => {
+      await queryClient.cancelQueries({ queryKey: ['users'] })
+
+      const previousUsers = queryClient.getQueryData(['users'])
+
+      queryClient.setQueryData(['users'], (old: any) =>
+        old.map((user: any) =>
+          user.id === updatedUser.id ? updatedUser : user
+        )
+      )
+
+      return { previousUsers }
+    },
+    onError: (err, updatedUser, context) => {
+      queryClient.setQueryData(['users'], context?.previousUsers)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+// 删除用户
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: api.deleteUser,
+    onSuccess: (_, deletedId) => {
+      // 直接从缓存中移除
+      queryClient.setQueryData(['users'], (old: any) =>
+        old.filter((user: any) => user.id !== deletedId)
+      )
+    },
+  })
+}
+```
+
+```typescript
+// components/UserList.tsx
+import { useUsers, useCreateUser, useDeleteUser } from '../hooks/useUsers'
+
+function UserList() {
+  const { data: users, isLoading, error } = useUsers()
+  const createUser = useCreateUser()
+  const deleteUser = useDeleteUser()
+
+  const handleAdd = () => {
+    createUser.mutate({
+      name: 'New User',
+      email: 'newuser@example.com'
+    })
+  }
+
+  const handleDelete = (id: string) => {
+    if (confirm('确认删除？')) {
+      deleteUser.mutate(id)
+    }
+  }
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
+
   return (
-    <ThemeContext.Provider value={theme}>
-      <MyComponent />
-    </ThemeContext.Provider>
-  );
-}
+    <div>
+      <button onClick={handleAdd} disabled={createUser.isPending}>
+        {createUser.isPending ? 'Adding...' : 'Add User'}
+      </button>
 
-// 3. 子组件用 useContext 获取数据
-import { useContext } from 'react';
-function MyComponent() {
-  const theme = useContext(ThemeContext);
-  return <div style={{ color: theme.color }}>内容</div>;
-}
-```
-
-**常见场景：** 主题切换、用户登录状态、语言设置、全局配置
-
-**注意：** Context 值改变会导致所有使用它的组件重新渲染
-
-## react编辑器里面的调试
-![编辑器调试](https://cdn.nlark.com/yuque/0/2025/png/2488285/1763558687264-866c951f-d0b3-41a9-b354-d19243319617.png?x-oss-process=image%2Fformat%2Cwebp)
-
-## 受控模式和非受控模式
-
-### 模式对比表格
-
-| 特性 | 受控模式 | 非受控模式 |
-|------|----------|------------|
-| 状态存储位置 | 父组件 | 子组件内部 |
-| 数据流向 | 父组件 → 子组件（单向） | 子组件自己管理 |
-| 父组件传入 | value + onChange | defaultValue |
-| 状态更新方式 | 父组件更新 state → 触发子组件重渲染 | 子组件内部 setState |
-| 父组件能否读取当前值 | ✅ 能（通过 state） | ❌ 不能直接读取 |
-| 适用场景 | 需要外部控制、联动、校验 | 简单场景、不需要外部干预 |
-
-### 详细解释
-
-#### 受控模式（Controlled Components）
-- **定义**：表单数据由React组件的state控制
-- **特点**：通过`value`属性和`onChange`事件处理器管理
-- **数据流**：单向数据流（state → UI）
-
-#### 非受控模式（Uncontrolled Components）
-- **定义**：表单数据由DOM自身管理
-- **特点**：使用`ref`直接访问DOM元素获取值
-- **数据流**：直接操作DOM
-
-#### 代码示例
-```javascript
-/** 
- * 这个 Hook 来自 ahooks 库，它的作用是自动处理受控和非受控组件的逻辑。
- * 它接受一个 props 对象和一个配置对象作为参数。
- * 配置对象可以包含 defaultValue、value、onChange 等属性。
- * 它返回一个数组，包含当前值和更新值的函数。
- * 当 props 中包含 value 和 onChange 时，Hook 会返回 props 中的值和更新函数。
- * 当 props 中不包含 value 和 onChange 时，Hook 会返回 defaultValue 和更新函数。
-*/ 
-import { useControllableValue } from 'ahooks';
-const [curValue, setCurValue] = useControllableValue<Dayjs>(props, {
-        defaultValue: dayjs()
-});
-```
-
-## react 组件
-### Suspense
-* 用于**优雅地处理异步操作的加载状态**，在等待内容加载时显示后备内容（loading）
-* 主要用途：代码分割、组件懒加载、异步数据获取
-
-#### 基本用法：懒加载组件
-```javascript
-import { Suspense, lazy } from 'react';
-
-// 懒加载组件
-const LazyComponent = lazy(() => import('./LazyComponent'));
-
-function App() {
-  return (
-    <Suspense fallback={<div>加载中...</div>}>
-      <LazyComponent />
-    </Suspense>
-  );
-}
-```
-
-#### 多个组件共享 loading
-```javascript
-import { Suspense, lazy } from 'react';
-
-const UserProfile = lazy(() => import('./UserProfile'));
-const UserPosts = lazy(() => import('./UserPosts'));
-
-function UserPage() {
-  return (
-    <Suspense fallback={<div>正在加载用户信息...</div>}>
-      <UserProfile />
-      <UserPosts />
-    </Suspense>
-  );
-}
-```
-
-#### 嵌套 Suspense（细粒度控制）
-```javascript
-function App() {
-  return (
-    <Suspense fallback={<PageLoading />}>
-      <Header />
-
-      <Suspense fallback={<Spinner />}>
-        <MainContent />
-      </Suspense>
-
-      <Suspense fallback={<SidebarLoading />}>
-        <Sidebar />
-      </Suspense>
-    </Suspense>
-  );
-}
-```
-
-#### 配合路由使用
-```javascript
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
-
-const Home = lazy(() => import('./pages/Home'));
-const About = lazy(() => import('./pages/About'));
-const User = lazy(() => import('./pages/User'));
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Suspense fallback={<div>页面加载中...</div>}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/user" element={<User />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
-  );
-}
-```
-
-#### 完整示例：带错误边界
-```javascript
-import { Suspense, lazy } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-
-const HeavyComponent = lazy(() => import('./HeavyComponent'));
-
-function LoadingFallback() {
-  return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <div className="spinner">加载中...</div>
+      {users?.map(user => (
+        <div key={user.id}>
+          {user.name} - {user.email}
+          <button
+            onClick={() => handleDelete(user.id)}
+            disabled={deleteUser.isPending}
+          >
+            Delete
+          </button>
+        </div>
+      ))}
     </div>
-  );
-}
-
-function ErrorFallback({ error }) {
-  return (
-    <div style={{ color: 'red' }}>
-      <h2>加载失败</h2>
-      <p>{error.message}</p>
-    </div>
-  );
-}
-
-function App() {
-  return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Suspense fallback={<LoadingFallback />}>
-        <HeavyComponent />
-      </Suspense>
-    </ErrorBoundary>
-  );
+  )
 }
 ```
 
-**关键属性：**
-- `fallback`：加载时显示的后备内容（ReactNode）
-- `children`：被 Suspense 包裹的组件（ReactNode）
+```typescript
+// App.tsx - 配置 QueryClient
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-**使用场景：**
-- 代码分割：按需加载大型组件，减少首屏加载时间
-- 路由懒加载：不同页面按需加载
-- 条件渲染：根据用户操作动态加载组件
-- 优化性能：延迟加载不重要的内容
+// 配置全局默认选项
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,  // 默认 1 分钟
+      gcTime: 5 * 60 * 1000,  // 默认 5 分钟
+      retry: 3,  // 失败重试 3 次
+      refetchOnWindowFocus: false,  // 关闭窗口聚焦时自动刷新
+    },
+  },
+})
 
-**注意事项：**
-- `lazy()` 必须在组件外部调用，不能在组件内部动态调用
-- `fallback` 不能是 Suspense 组件本身
-- 懒加载的组件必须是默认导出（`export default`）
-- Suspense 会捕获其子树中所有组件的 loading 状态
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <UserList />
+      {/* 开发工具（只在开发环境显示） */}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  )
+}
+```
 
+---
+
+### 高级缓存策略
+
+#### 1. 结构化数据规范化
+
+对于关联数据，使用规范化缓存：
+
+```typescript
+// 不好的做法：重复存储用户数据
+queryClient.setQueryData(['post', 1], {
+  id: 1,
+  title: 'Post 1',
+  author: { id: 1, name: 'John' }  // 用户数据
+})
+
+queryClient.setQueryData(['post', 2], {
+  id: 2,
+  title: 'Post 2',
+  author: { id: 1, name: 'John' }  // 重复的用户数据
+})
+
+// 好的做法：分离存储
+queryClient.setQueryData(['post', 1], {
+  id: 1,
+  title: 'Post 1',
+  authorId: 1  // 只存储 ID
+})
+
+queryClient.setQueryData(['user', 1], {
+  id: 1,
+  name: 'John'  // 用户数据单独缓存
+})
+```
+
+#### 2. 依赖查询
+
+```typescript
+function UserPosts({ userId }) {
+  // 先获取用户信息
+  const { data: user } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId)
+  })
+
+  // 只有用户信息获取成功后才获取文章列表
+  const { data: posts } = useQuery({
+    queryKey: ['posts', userId],
+    queryFn: () => fetchUserPosts(userId),
+    enabled: !!user,  // 依赖 user 存在
+  })
+
+  return <div>{/* ... */}</div>
+}
+```
+
+#### 3. 并行查询
+
+```typescript
+function Dashboard() {
+  const users = useQuery({ queryKey: ['users'], queryFn: fetchUsers })
+  const posts = useQuery({ queryKey: ['posts'], queryFn: fetchPosts })
+  const comments = useQuery({ queryKey: ['comments'], queryFn: fetchComments })
+
+  // 使用 useQueries 更优雅
+  const results = useQueries({
+    queries: [
+      { queryKey: ['users'], queryFn: fetchUsers },
+      { queryKey: ['posts'], queryFn: fetchPosts },
+      { queryKey: ['comments'], queryFn: fetchComments },
+    ]
+  })
+
+  const [usersQuery, postsQuery, commentsQuery] = results
+}
+```
+
+---
+
+### 性能优化最佳实践
+
+#### 1. 选择性订阅（避免不必要的重渲染）
+
+```typescript
+// 不好：整个对象变化都会触发重渲染
+const { data } = useQuery({ queryKey: ['user', id], queryFn: fetchUser })
+
+// 好：只订阅需要的字段
+const name = useQuery({
+  queryKey: ['user', id],
+  queryFn: fetchUser,
+  select: (data) => data.name  // 只有 name 变化时才重渲染
+})
+```
+
+#### 2. 使用 staleTi优化请求频率
+
+```typescript
+// 对于不常变化的数据，设置较长的 staleTime
+const { data } = useQuery({
+  queryKey: ['config'],
+  queryFn: fetchConfig,
+  staleTime: Infinity,  // 永不过期（适用于静态配置）
+})
+
+// 对于实时数据，使用轮询
+const { data } = useQuery({
+  queryKey: ['realtime'],
+  queryFn: fetchRealtime,
+  refetchInterval: 1000,  // 每秒刷新
+})
+```
+
+#### 3. 错误重试策略
+
+```typescript
+const { data } = useQuery({
+  queryKey: ['users'],
+  queryFn: fetchUsers,
+  retry: (failureCount, error) => {
+    // 404 错误不重试
+    if (error.response?.status === 404) return false
+    // 最多重试 3 次
+    return failureCount < 3
+  },
+  retryDelay: (attemptIndex) => {
+    // 指数退避：1s, 2s, 4s, 8s...
+    return Math.min(1000 * 2 ** attemptIndex, 30000)
+  },
+})
+```
+
+---
+
+### 简历中的实际含义
+
+当简历写"**使用 React Query 管理服务端状态，优化缓存策略**"时，表示你：
+
+1. ✅ **理解客户端状态和服务端状态的区别**
+2. ✅ **掌握现代化的数据获取方案**（React Query）
+3. ✅ **能够实现智能缓存策略**（staleTime、gcTime）
+4. ✅ **具备性能优化能力**（预取、乐观更新、去重请求）
+5. ✅ **了解数据同步和一致性**（invalidation、refetch）
+6. ✅ **能够处理复杂的异步场景**（分页、无限滚动、依赖查询）
+
+这体现了你：
+- 🎯 关注用户体验（减少 loading、优化响应速度）
+- 🎯 注重性能优化（减少不必要的请求）
+- 🎯 代码质量高（简洁、可维护）
+- 🎯 具备架构思维（合理的缓存策略设计）
+
+---
+
+### 总结对比
+
+| 特性 | 传统方式 | React Query |
+|------|---------|-------------|
+| 状态管理 | 手动管理 loading/error/data | 自动管理 |
+| 缓存 | 无或手动实现 | 自动缓存 + 智能失效 |
+| 请求去重 | 无 | 自动去重 |
+| 后台刷新 | 需要手动实现 | 自动后台刷新 |
+| 重试机制 | 需要手动实现 | 内置重试 + 指数退避 |
+| 乐观更新 | 复杂 | 简单易用 |
+| 预取数据 | 需要手动实现 | 一行代码实现 |
+| 开发工具 | 无 | DevTools 可视化调试 |
+| 代码量 | 多 | 少（减少 70%+） |
+
+**核心价值**：React Query 通过智能缓存和自动化的数据同步机制，让开发者专注于业务逻辑，而不是处理繁琐的状态管理和数据获取细节。
