@@ -181,7 +181,7 @@ fork别人代码提交给别人需要 发送拉取请求
 
 ```typescript
 git remote -v  // 查看别名
-git remote add 别名  远程仓库地址  // 创建别名
+c  // 创建别名
 /*创建别名后 用 git remote -v 输出信息如下*/  
 git-demo        https://github.com/372798735/git-demo.git (fetch)  // 表示根据别名可以拉取
 git-demo        https://github.com/372798735/git-demo.git (push)   // 表示根据别名可以推送
@@ -238,7 +238,7 @@ git submodule update 子包名称  // 拉取子包的内容
 
 ```
 
-###### 12、线上版本回退
+###### 12、线上版本回退(代码回滚)
 
 ```javascript
 1、回退版本号
