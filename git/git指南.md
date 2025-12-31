@@ -383,14 +383,24 @@ git stash drop
 git stash clear
 ```
 
-25. 空提交，一般用于测试commit
+#### 25. 空提交，一般用于测试commit
 ```git
 git commit --allow-empty -m "test: auto push"
 ```
 
-26. 更新远程分支信息
+#### 26. 更新远程分支信息
 ```git
 git fetch origin
+```
+
+#### 27. 初始化项目推送 将本地的master分支推送到远程的 main 分支
+```git
+// 方案1：将本地的master分支推送带远程的main分支
+git push -u origin master:main
+// 方案2：将本地分支重命名为 main,然后再推送
+git branch -M main
+git push -u origin main
+
 ```
 
 ## 参考文件
