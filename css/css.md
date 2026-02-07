@@ -5,7 +5,7 @@
 一、grid的基本介绍
 1、基本定义
 flex布局是轴线布局，只能指定"项目"针对轴线的位置，可以看作是一维布局，Grid布局则是将容器划分成“行”和“列”，产生单元格，然后指定“项目所在”的单元格，可以看作是二维布局，grid布局远比flex布局强大。如下图就是典型的Grid布局。
-![alt text](image.png)]
+![alt text](image.png)
 2、布局方式-常用三种：
 1、传统布局方式
 利用position属性+display属性+float属性布局，兼容性最好，但是效率低，麻烦
@@ -15,9 +15,9 @@ flex布局是轴线布局，只能指定"项目"针对轴线的位置，可以�
 网格布局是最强大的 CSS 布局方案，但是知识点较多，学习成本相对困难些，目前的兼容性不如flex好。
 3、grid的基本概念：
 容器和项目，如下图所示
-![alt text](image-2.png))
+![alt text](image-2.png)
 所有的基本概念，更利于了解布局
-](![alt text](image-1.png))
+![alt text](image-1.png)
 
 二、用法介绍
 1、容器属性 grid-template-*
@@ -30,7 +30,7 @@ grid-template-columns: 1fr minmax(150px 1fr)  表示宽度平均分成4份;
 1.4、grid-template-columns: 1fr minmax(150px,1fr) 1fr; 表示三列，其中第二列最小宽度为150px;
 1.5、auto布局：grid-template-columns: 100px auto 100px;  表示三列，左右两列宽度固定，中间列宽度占满
 剩余宽度；
-1.6、网格线，可以用方括号定义网格线名称，方便以后得引用
+1.6、网格线，可以用方括号定义网格线名称，方便以后的引用
 grid-template-columns:  [c1] 100px  [c2] 100px  [c3] 100px [c4];
 ![alt text](image-3.png)
 
@@ -74,3 +74,4 @@ grid-auto-rows:50px;
 多个指定项目的合并
 ![alt text](image-10.png)
 10、项目属性：justify-self / align-self / place-self  单个单元格的对齐方式
+![alt text](image-11.png)
