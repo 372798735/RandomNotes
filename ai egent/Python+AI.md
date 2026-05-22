@@ -207,4 +207,29 @@ Python中常用的有6种值(数据)类型
 
 比较运算符：
 ![比较运算符](./python的类型.png)
-  
+
+### 9. 导入模块或成员
+1. 导入整个模块
+```python
+import module_name
+import package.module_name
+
+// 使用时需要通过模块名访问其中的属性：
+import math
+print(math.sqrt(16))
+```
+2. 导入模块并起别名
+```python
+import numpy as up
+print(np.array([1,2,3]))
+```
+
+3. 从模块中导入特定成员
+```python
+form module_name import name1,name2
+
+# 可以直接使用成员名，无需前缀
+from math import sqrt, pi
+print(sqrt(16))
+```
+
