@@ -1,1071 +1,726 @@
-# React
+# React.js
 
-## 使用脚手架新建一个项目
+## 安装
 
-```javascript
-/**
- * 方式一：不用下载脚手架，命令解释(推荐使用)：
- * npx - Node.js 包执行器：
- *     用于运行npm包而不需要全局安装
- *     会自动下载并执行指定的包
- * create-react-app React官方脚手架工具：
- *     Facebook官方提供的创建 React 应用的命令行工具
- *     自动配置 Webpack、Babel、ESLint 等开发工具
- * -- template typescript 模板参数，
- *     指定使用TypeScript模板
- *     会创建带有 TypeScript 配置的项目
- *     所有文件将使用 .tsx 和 .ts 扩展名
- * hook-test 项目名称：
- *     新创建的React应用的文件夹名称
- *     会在当前目录下创建 hook-test 文件夹
- * 为什么不需要下载脚手架：
- *    npx 会自动下载并执行指定的包
- *    即使你的系统上没有安装 create-react-app, npx 也会临时下载它
- *    执行完成后，临时下载的包会被清理
- */
- npx create-react-app --template typescript hook-test
-```
-
----
-
-## Redux Toolkit 的 createSlice 详解
-
-### 什么是 Redux Toolkit 和 createSlice
-
-#### 传统 Redux 的痛点
-
-在传统的 Redux 中，创建状态管理需要编写大量样板代码：
+安装基于 webpack 的 React 项目
 
 ```javascript
-// 1. 定义 Action Types
-const INCREMENT = 'counter/INCREMENT'
-const DECREMENT = 'counter/DECREMENT'
-
-// 2. 创建 Action Creators
-const increment = () => ({ type: INCREMENT })
-const decrement = () => ({ type: DECREMENT })
-
-// 3. 编写 Reducer
-const initialState = { value: 0 }
-
-function counterReducer(state = initialState, action) {
-  switch (action.type) {
-    case INCREMENT:
-      return { ...state, value: state.value + 1 }
-    case DECREMENT:
-      return { ...state, value: state.value - 1 }
-    default:
-      return state
-  }
-}
-
-// 4. 配置 Store
-const store = createStore(counterReducer)
+// 安装脚手架
+npm install create-react-app -g
+// 创建项目
+create-react-app my-app
+cd my-app
+npm run start
 ```
 
-这种方式需要：
-
-- 手动定义 action types
-- 手动创建 action creators
-- 手动编写 switch-case 语句
-- 手动处理不可变更新（使用展开运算符）
-- **代码量大、重复性高、容易出错**
-
----
-
-#### Redux Toolkit 的 createSlice 简化方案
-
-Redux Toolkit 的 `createSlice` 将上述所有步骤合并成一个函数调用：
-
-```typescript
-import { createSlice } from '@reduxjs/toolkit'
-
-// 一个 createSlice 搞定所有事情
-const counterSlice = createSlice({
-  name: 'counter',
-  initialState: { value: 0 },
-  reducers: {
-    // 直接定义 reducer 函数，自动生成 action
-    increment: (state) => {
-      state.value += 1  // 可以直接修改 state（内部使用 Immer）
-    },
-    decrement: (state) => {
-      state.value -= 1
-    },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload
-    }
-  }
-})
-
-// 自动生成的 actions
-export const { increment, decrement, incrementByAmount } = counterSlice.actions
-
-// 导出 reducer
-export default counterSlice.reducer
-```
-
----
-
-### createSlice 的优势
-
-#### 1. 代码量大幅减少
-
-- 传统 Redux: ~40 行代码
-- Redux Toolkit: ~15 行代码
-- **减少 60% 以上的代码量**
-
-#### 2. 自动生成 Action Creators
-
-```typescript
-// 不需要手动写这些了
-const increment = () => ({ type: 'counter/increment' })
-
-// createSlice 自动生成
-counterSlice.actions.increment()
-// 结果: { type: 'counter/increment' }
-```
-
-#### 3. 可以直接"修改"状态（内部使用 Immer）
-
-```typescript
-// 传统 Redux（必须不可变更新）
-case INCREMENT:
-  return {
-    ...state,
-    value: state.value + 1,
-    nested: {
-      ...state.nested,
-      count: state.nested.count + 1
-    }
-  }
-
-// Redux Toolkit（看起来像直接修改）
-increment: (state) => {
-  state.value += 1
-  state.nested.count += 1  // 简洁明了
-}
-```
-
-**原理**: createSlice 内部使用 [Immer](https://immerjs.github.io/immer/) 库，允许你写"可变"代码，但实际返回的是不可变更新。
-
-#### 4. TypeScript 支持更好
-
-```typescript
-interface CounterState {
-  value: number
-  loading: boolean
-}
-
-const initialState: CounterState = {
-  value: 0,
-  loading: false
-}
-
-const counterSlice = createSlice({
-  name: 'counter',
-  initialState,
-  reducers: {
-    // TypeScript 自动推导类型
-    increment: (state) => {
-      state.value += 1  // ✅ 类型安全
-      state.invalid += 1  // ❌ TypeScript 报错
-    }
-  }
-})
-```
-
----
-
-### 实际项目应用示例
-
-#### 示例：用户管理模块
-
-```typescript
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-interface User {
-  id: string
-  name: string
-  email: string
-}
-
-interface UserState {
-  list: User[]
-  loading: boolean
-  error: string | null
-}
-
-const initialState: UserState = {
-  list: [],
-  loading: false,
-  error: null
-}
-
-const userSlice = createSlice({
-  name: 'user',
-  initialState,
-  reducers: {
-    // 开始加载
-    fetchUsersStart: (state) => {
-      state.loading = true
-      state.error = null
-    },
-    // 加载成功
-    fetchUsersSuccess: (state, action: PayloadAction<User[]>) => {
-      state.loading = false
-      state.list = action.payload
-    },
-    // 加载失败
-    fetchUsersFailure: (state, action: PayloadAction<string>) => {
-      state.loading = false
-      state.error = action.payload
-    },
-    // 添加用户
-    addUser: (state, action: PayloadAction<User>) => {
-      state.list.push(action.payload)
-    },
-    // 删除用户
-    removeUser: (state, action: PayloadAction<string>) => {
-      state.list = state.list.filter(user => user.id !== action.payload)
-    },
-    // 更新用户
-    updateUser: (state, action: PayloadAction<User>) => {
-      const index = state.list.findIndex(u => u.id === action.payload.id)
-      if (index !== -1) {
-        state.list[index] = action.payload
-      }
-    }
-  }
-})
-
-export const {
-  fetchUsersStart,
-  fetchUsersSuccess,
-  fetchUsersFailure,
-  addUser,
-  removeUser,
-  updateUser
-} = userSlice.actions
-
-export default userSlice.reducer
-```
-
-#### 在组件中使用
-
-```typescript
-import { useDispatch, useSelector } from 'react-redux'
-import { addUser, removeUser } from './userSlice'
-
-function UserList() {
-  const dispatch = useDispatch()
-  const { list, loading } = useSelector(state => state.user)
-
-  const handleAdd = () => {
-    dispatch(addUser({
-      id: '123',
-      name: 'John',
-      email: 'john@example.com'
-    }))
-  }
-
-  const handleRemove = (id: string) => {
-    dispatch(removeUser(id))
-  }
-
-  return (
-    <div>
-      {loading ? 'Loading...' : list.map(user => (
-        <div key={user.id}>
-          {user.name}
-          <button onClick={() => handleRemove(user.id)}>删除</button>
-        </div>
-      ))}
-      <button onClick={handleAdd}>添加用户</button>
-    </div>
-  )
-}
-```
-
----
-
-### 简历中的实际含义
-
-当简历写"**基于 Redux Toolkit 的 createSlice 简化状态管理代码**"时，表示你：
-
-1. ✅ **了解传统 Redux 的痛点**（样板代码多）
-2. ✅ **掌握现代化的状态管理方案**（Redux Toolkit）
-3. ✅ **能够编写更简洁、可维护的代码**
-4. ✅ **理解不可变更新和 Immer 的原理**
-5. ✅ **具备优化代码结构的能力**
-
-这是一个**技术升级和代码质量提升**的体现，说明你能够选择合适的工具来提高开发效率和代码质量。
-
----
-
-### 总结
-
-**createSlice 简化了什么？**
-
-- ❌ 不需要手动定义 action types
-- ❌ 不需要手动创建 action creators
-- ❌ 不需要编写 switch-case 语句
-- ❌ 不需要手动处理不可变更新
-- ✅ 一个函数搞定所有状态管理逻辑
-- ✅ 代码量减少 60%+
-- ✅ 更好的 TypeScript 支持
-- ✅ 更易维护和理解
-
-这就是"简化状态管理代码"的核心含义！
-
----
-
-## React Query 管理服务端状态与缓存优化
-
-### 什么是 React Query（TanStack Query）
-
-React Query（现在称为 TanStack Query）是一个强大的服务端状态管理库，专门用于处理异步数据的获取、缓存、同步和更新。
-
-### 为什么需要 React Query？
-
-#### 传统方式的问题
-
-在没有 React Query 之前，我们通常这样管理服务端数据：
-
-```typescript
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-
-function UserList() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const response = await axios.get('/api/users')
-        setUsers(response.data)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchUsers()
-  }, [])
-
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error}</div>
-
-  return (
-    <div>
-      {users.map(user => (
-        <div key={user.id}>{user.name}</div>
-      ))}
-    </div>
-  )
-}
-```
-
-**存在的问题**：
-- ❌ 需要手动管理 loading、error、data 三个状态
-- ❌ 没有缓存机制，每次组件挂载都会重新请求
-- ❌ 多个组件请求同一数据会导致重复请求
-- ❌ 无法轻松实现数据预取、后台刷新
-- ❌ 数据过期管理复杂
-- ❌ 乐观更新和回滚困难
-
----
-
-### React Query 的解决方案
-
-使用 React Query，上述代码可以简化为：
-
-```typescript
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-
-function UserList() {
-  const { data: users, isLoading, error } = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => {
-      const response = await axios.get('/api/users')
-      return response.data
-    }
-  })
-
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
-
-  return (
-    <div>
-      {users.map(user => (
-        <div key={user.id}>{user.name}</div>
-      ))}
-    </div>
-  )
-}
-```
-
-**优势**：
-- ✅ 自动管理 loading、error、data 状态
-- ✅ 自动缓存数据
-- ✅ 自动去重请求
-- ✅ 后台自动刷新
-- ✅ 支持数据预取
-- ✅ 内置重试机制
-
----
-
-### React Query 的核心概念
-
-#### 1. Query（查询）
-
-用于获取数据的基本单位，每个查询都有唯一的 `queryKey`。
-
-```typescript
-// 简单查询
-const { data } = useQuery({
-  queryKey: ['users'],
-  queryFn: fetchUsers
-})
-
-// 带参数的查询
-const { data } = useQuery({
-  queryKey: ['user', userId],  // queryKey 包含参数
-  queryFn: () => fetchUserById(userId)
-})
-
-// 依赖查询（只有 userId 存在时才执行）
-const { data } = useQuery({
-  queryKey: ['user', userId],
-  queryFn: () => fetchUserById(userId),
-  enabled: !!userId  // 条件查询
-})
-```
-
-#### 2. Mutation（变更）
-
-用于修改服务端数据（POST、PUT、DELETE 等操作）。
-
-```typescript
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-
-function AddUser() {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation({
-    mutationFn: (newUser) => {
-      return axios.post('/api/users', newUser)
-    },
-    onSuccess: () => {
-      // 变更成功后，使 users 查询失效并重新获取
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-    }
-  })
-
-  const handleAdd = () => {
-    mutation.mutate({
-      name: 'John',
-      email: 'john@example.com'
-    })
-  }
-
-  return (
-    <button onClick={handleAdd} disabled={mutation.isPending}>
-      {mutation.isPending ? 'Adding...' : 'Add User'}
-    </button>
-  )
-}
-```
-
-#### 3. Query Invalidation（查询失效）
-
-让缓存的数据过期，触发重新获取。
-
-```typescript
-// 使特定查询失效
-queryClient.invalidateQueries({ queryKey: ['users'] })
-
-// 使所有以 'users' 开头的查询失效
-queryClient.invalidateQueries({ queryKey: ['users'], exact: false })
-
-// 立即重新获取
-queryClient.invalidateQueries({
-  queryKey: ['users'],
-  refetchType: 'active' // 只重新获取活跃的查询
-})
-```
-
----
-
-### 缓存策略优化
-
-#### 1. 缓存时间配置
-
-```typescript
-const { data } = useQuery({
-  queryKey: ['users'],
-  queryFn: fetchUsers,
-  // 数据被认为是新鲜的时间（默认 0）
-  staleTime: 5 * 60 * 1000,  // 5分钟内不会重新请求
-
-  // 未使用的数据在缓存中保留的时间（默认 5分钟）
-  gcTime: 10 * 60 * 1000,  // 10分钟后清除缓存
-})
-```
-
-**staleTime vs gcTime**：
-- `staleTime`: 数据"新鲜"的时间，在此期间不会发起新请求
-- `gcTime`: 未使用的数据在内存中保留的时间
-
-```
-请求 ─→ 新鲜数据 ─→ 过期数据 ─→ 垃圾回收
-       (staleTime)  (gcTime)
-```
-
-#### 2. 后台自动刷新
-
-```typescript
-const { data } = useQuery({
-  queryKey: ['users'],
-  queryFn: fetchUsers,
-  // 窗口重新获得焦点时自动刷新
-  refetchOnWindowFocus: true,  // 默认 true
-
-  // 网络重新连接时刷新
-  refetchOnReconnect: true,  // 默认 true
-
-  // 组件挂载时刷新
-  refetchOnMount: true,  // 默认 true
-
-  // 定时轮询
-  refetchInterval: 30000,  // 每30秒刷新一次
-
-  // 只在窗口聚焦时轮询
-  refetchIntervalInBackground: false
-})
-```
-
-#### 3. 预取数据（Prefetching）
-
-在用户需要之前提前加载数据：
-
-```typescript
-import { useQueryClient } from '@tanstack/react-query'
-
-function UserListItem({ userId }) {
-  const queryClient = useQueryClient()
-
-  // 鼠标悬停时预取用户详情
-  const handleMouseEnter = () => {
-    queryClient.prefetchQuery({
-      queryKey: ['user', userId],
-      queryFn: () => fetchUserById(userId),
-      staleTime: 10000  // 10秒内不重复预取
-    })
-  }
-
-  return (
-    <div onMouseEnter={handleMouseEnter}>
-      <Link to={`/users/${userId}`}>查看详情</Link>
-    </div>
-  )
-}
-```
-
-#### 4. 乐观更新（Optimistic Updates）
-
-在请求完成前先更新 UI，失败时回滚：
-
-```typescript
-const mutation = useMutation({
-  mutationFn: updateUser,
-  onMutate: async (newUser) => {
-    // 取消正在进行的查询
-    await queryClient.cancelQueries({ queryKey: ['users'] })
-
-    // 保存当前数据（用于回滚）
-    const previousUsers = queryClient.getQueryData(['users'])
-
-    // 乐观更新
-    queryClient.setQueryData(['users'], (old) => {
-      return old.map(user =>
-        user.id === newUser.id ? newUser : user
-      )
-    })
-
-    // 返回上下文（用于回滚）
-    return { previousUsers }
-  },
-  onError: (err, newUser, context) => {
-    // 失败时回滚
-    queryClient.setQueryData(['users'], context.previousUsers)
-  },
-  onSettled: () => {
-    // 完成后重新获取数据
-    queryClient.invalidateQueries({ queryKey: ['users'] })
-  }
-})
-```
-
-#### 5. 分页查询
-
-```typescript
-import { useQuery } from '@tanstack/react-query'
-
-function PaginatedUsers() {
-  const [page, setPage] = useState(1)
-
-  const { data, isLoading, isPreviousData } = useQuery({
-    queryKey: ['users', page],
-    queryFn: () => fetchUsers(page),
-    // 保留前一页数据，切换时不显示 loading
-    keepPreviousData: true
-  })
-
-  return (
-    <div>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          {data.users.map(user => (
-            <div key={user.id}>{user.name}</div>
-          ))}
-
-          <button
-            onClick={() => setPage(old => Math.max(old - 1, 1))}
-            disabled={page === 1}
-          >
-            上一页
-          </button>
-
-          <button
-            onClick={() => setPage(old => old + 1)}
-            disabled={isPreviousData || !data.hasMore}
-          >
-            下一页
-          </button>
-        </>
-      )}
-    </div>
-  )
-}
-```
-
-#### 6. 无限滚动
-
-```typescript
-import { useInfiniteQuery } from '@tanstack/react-query'
-
-function InfiniteUsers() {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
-  } = useInfiniteQuery({
-    queryKey: ['users'],
-    queryFn: ({ pageParam = 1 }) => fetchUsers(pageParam),
-    getNextPageParam: (lastPage, pages) => {
-      // 返回下一页的参数，返回 undefined 表示没有更多数据
-      return lastPage.hasMore ? pages.length + 1 : undefined
-    }
-  })
-
-  return (
-    <div>
-      {data?.pages.map((page, i) => (
-        <div key={i}>
-          {page.users.map(user => (
-            <div key={user.id}>{user.name}</div>
-          ))}
-        </div>
-      ))}
-
-      <button
-        onClick={() => fetchNextPage()}
-        disabled={!hasNextPage || isFetchingNextPage}
-      >
-        {isFetchingNextPage
-          ? 'Loading...'
-          : hasNextPage
-          ? '加载更多'
-          : '没有更多了'}
-      </button>
-    </div>
-  )
-}
-```
-
----
-
-### 完整实战示例：用户管理模块
-
-```typescript
-// api/users.ts
-import axios from 'axios'
-
-export interface User {
-  id: string
-  name: string
-  email: string
-}
-
-export const fetchUsers = async (): Promise<User[]> => {
-  const { data } = await axios.get('/api/users')
-  return data
-}
-
-export const fetchUserById = async (id: string): Promise<User> => {
-  const { data } = await axios.get(`/api/users/${id}`)
-  return data
-}
-
-export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
-  const { data } = await axios.post('/api/users', user)
-  return data
-}
-
-export const updateUser = async (user: User): Promise<User> => {
-  const { data } = await axios.put(`/api/users/${user.id}`, user)
-  return data
-}
-
-export const deleteUser = async (id: string): Promise<void> => {
-  await axios.delete(`/api/users/${id}`)
-}
-```
-
-```typescript
-// hooks/useUsers.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import * as api from '../api/users'
-
-// 获取用户列表
-export const useUsers = () => {
-  return useQuery({
-    queryKey: ['users'],
-    queryFn: api.fetchUsers,
-    staleTime: 5 * 60 * 1000,  // 5分钟内认为数据是新鲜的
-  })
-}
-
-// 获取单个用户
-export const useUser = (id: string) => {
-  return useQuery({
-    queryKey: ['user', id],
-    queryFn: () => api.fetchUserById(id),
-    enabled: !!id,  // 只有 id 存在时才查询
-  })
-}
-
-// 创建用户
-export const useCreateUser = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: api.createUser,
-    onSuccess: (newUser) => {
-      // 方法1: 使查询失效，触发重新获取
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-
-      // 方法2: 直接更新缓存（性能更好）
-      // queryClient.setQueryData(['users'], (old) => [...old, newUser])
-    },
-  })
-}
-
-// 更新用户
-export const useUpdateUser = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: api.updateUser,
-    // 乐观更新
-    onMutate: async (updatedUser) => {
-      await queryClient.cancelQueries({ queryKey: ['users'] })
-
-      const previousUsers = queryClient.getQueryData(['users'])
-
-      queryClient.setQueryData(['users'], (old: any) =>
-        old.map((user: any) =>
-          user.id === updatedUser.id ? updatedUser : user
-        )
-      )
-
-      return { previousUsers }
-    },
-    onError: (err, updatedUser, context) => {
-      queryClient.setQueryData(['users'], context?.previousUsers)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-    },
-  })
-}
-
-// 删除用户
-export const useDeleteUser = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: api.deleteUser,
-    onSuccess: (_, deletedId) => {
-      // 直接从缓存中移除
-      queryClient.setQueryData(['users'], (old: any) =>
-        old.filter((user: any) => user.id !== deletedId)
-      )
-    },
-  })
-}
-```
-
-```typescript
-// components/UserList.tsx
-import { useUsers, useCreateUser, useDeleteUser } from '../hooks/useUsers'
-
-function UserList() {
-  const { data: users, isLoading, error } = useUsers()
-  const createUser = useCreateUser()
-  const deleteUser = useDeleteUser()
-
-  const handleAdd = () => {
-    createUser.mutate({
-      name: 'New User',
-      email: 'newuser@example.com'
-    })
-  }
-
-  const handleDelete = (id: string) => {
-    if (confirm('确认删除？')) {
-      deleteUser.mutate(id)
-    }
-  }
-
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
-
-  return (
-    <div>
-      <button onClick={handleAdd} disabled={createUser.isPending}>
-        {createUser.isPending ? 'Adding...' : 'Add User'}
-      </button>
-
-      {users?.map(user => (
-        <div key={user.id}>
-          {user.name} - {user.email}
-          <button
-            onClick={() => handleDelete(user.id)}
-            disabled={deleteUser.isPending}
-          >
-            Delete
-          </button>
-        </div>
-      ))}
-    </div>
-  )
-}
-```
-
-```typescript
-// App.tsx - 配置 QueryClient
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-
-// 配置全局默认选项
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000,  // 默认 1 分钟
-      gcTime: 5 * 60 * 1000,  // 默认 5 分钟
-      retry: 3,  // 失败重试 3 次
-      refetchOnWindowFocus: false,  // 关闭窗口聚焦时自动刷新
-    },
-  },
-})
-
+## react 基础
+
+### 什么是JSX和基本使用
+
+一、概念：
+JSX 是 JavaScript和XML（HTML）的缩写，表示在JS代码中编写HTML模板结构，它是React中编写UI模版的方式
+优势：1.HTML的声明式模版写法
+     2.JS的可编程能力
+
+JSX的本质
+JSX并不是标准的JS语法，它是JS的语法扩展，浏览器本身不能识别，需要通过解析工具(BABEL)做解析之后才能在浏览器中运行
+
+二、JSX中使用JS表达式
+在JSX中可以通过 大括号语法 {} 识别javaScript中的表达式，比如常见的常量、函数调用、方法调用等等
+
+1. 使用引号传递字符串
+2. 使用javaScript变量
+3. 函数调用和方法调用
+4. 使用javaScript对象
+
+```javascript
+// 项目的根组件
+const count = 100;
+const getName = () => {
+  return "Tony";
+};
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <UserList />
-      {/* 开发工具（只在开发环境显示） */}
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  )
+    <div className="App">
+      this is App
+      {/**使用引号传递字符串 */}
+      {"this is message"}
+      {/**识别js变量 */}
+      {count}
+      {/**函数调用 */}
+      {getName()}
+      {/**方法调用 */}
+      {new Date().getDate()}
+      {/**使用js对象 */}
+      <div style={{ color: "red" }}>this is div</div>
+    </div>
+  );
+}
+export default App;
+```
+
+三、JSX中实现列表渲染
+
+```javascript
+// 项目的根组件
+const list = [
+  { id: 1, name: 'vue' },
+  { id: 2, name: 'react' },
+  { id: 3, name:'angular' }
+]
+function App() {
+  return (
+    <div className="App">
+      <ul>
+        {list.map(item =>
+         {/** 结构复杂，使用()优结构 */}
+          (<li key={item.id}>{ item.name}</li>)
+        )}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+四、JSX中实现条件渲染
+在JSX中可以通过 三目运算符 或 && 运算符 实现条件渲染
+
+```javascript
+// 项目的根组件
+const isLogin = true;
+function App() {
+  return (
+    <div className="App">
+      {/**三目运算符 */}
+      {isLogin ? <div>this is login</div> : <div>this is not login</div>}
+      {/**&& 运算符 */}
+      {isLogin && <div>this is login</div>}
+    </div>
+  );
+}
+
+export default App;
+```
+
+五、JSX中实现复杂条件渲染
+
+```javascript
+// 项目的根组件
+const articleType = 1;
+
+// 定义核心函数（根据文章类型返回不同的JSX模板）
+function renderArticle(articleType) {
+  switch (articleType) {
+    case 1:
+      return <div>这是一个Vue文章</div>;
+    case 2:
+      return <div>这是一个React文章</div>;
+    case 3:
+      return <div>这是一个Angular文章</div>;
+    default:
+      return <div>未知文章类型</div>;
+  }
+}
+
+function App() {
+  return <div className="App">{renderArticle(articleType)}</div>;
+}
+
+export default App;
+```
+
+六、JSX中实现事件绑定
+
+语法：on + 事件名称 = {事件处理函数},整体上遵循驼峰命名法
+
+```javascript
+function App() {
+  // 基本事件绑定
+  const handleClick1 = () => {
+    console.log("button被点击了");
+  };
+  // 事件参数e
+  const handleClick2 = (e) => {
+    console.log(e);
+  };
+  // 传递自定义参数
+  const handleClick3 = (name) => {
+    console.log(name);
+  };
+  // 同时传递自定义参数和事件对象e
+  const handleClick4 = (name, e) => {
+    console.log(name, e);
+  };
+  return (
+    <div className="App">
+      <button onClick={(e) => handleClick4("张三", e)}>点击我</button>
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+七、基础组件使用
+
+```javascript
+function App() {
+  // 1. 定义组件
+  function Button() {
+    // 业务逻辑组件
+    return <Button>Click me!</Button>;
+  }
+  return (
+    <div className="App">
+      {/** 自闭和 */}
+      <Button />
+      {/** 非自闭和 */}
+      <Button>Click me!</Button>
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+八、useState 基础使用
+useState 是一个 React Hook 函数，它允许我们向组件添加一个状态变量，从而控制影响组件的渲染结果
+本质：和普通JS变量不同的是，状态变量一旦发生变化组件的视图UI也会跟着变化（数据驱动视图）
+
+```javascript
+import { useState } from "react";
+function App() {
+  // 1. 调用useState添加一个状态变量
+  // count 状态变量
+  // setCount 更新count状态变量的函数
+  const [count, setCount] = useState(0);
+  // 2. 点击事件回调
+  const handleClick = () => {
+    setCount(count + 1);
+  };
+  return (
+    <div className="App">
+      <button onClick={handleClick}>{count}</button>
+    </div>
+  );
 }
 ```
 
----
+export default App;
 
-### 高级缓存策略
+状态不可变：需要通过setState更新状态变量，不能直接修改状态变量
+修改对象状态：规则：对于对象类型的状态变量，应该始终传给set方法一个全新的对象来进行修改
 
-#### 1. 结构化数据规范化
+```javascript
+import { useState } from "react";
+function App() {
+  // 1. 调用useState添加一个状态变量
+  // count 状态变量
+  // setCount 更新count状态变量的函数
+  const [count, setCount] = useState(0);
+  // 2. 点击事件回调
+  const handleClick = () => {
+    setCount(count + 1);
+  };
 
-对于关联数据，使用规范化缓存：
-
-```typescript
-// 不好的做法：重复存储用户数据
-queryClient.setQueryData(['post', 1], {
-  id: 1,
-  title: 'Post 1',
-  author: { id: 1, name: 'John' }  // 用户数据
-})
-
-queryClient.setQueryData(['post', 2], {
-  id: 2,
-  title: 'Post 2',
-  author: { id: 1, name: 'John' }  // 重复的用户数据
-})
-
-// 好的做法：分离存储
-queryClient.setQueryData(['post', 1], {
-  id: 1,
-  title: 'Post 1',
-  authorId: 1  // 只存储 ID
-})
-
-queryClient.setQueryData(['user', 1], {
-  id: 1,
-  name: 'John'  // 用户数据单独缓存
-})
-```
-
-#### 2. 依赖查询
-
-```typescript
-function UserPosts({ userId }) {
-  // 先获取用户信息
-  const { data: user } = useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => fetchUser(userId)
-  })
-
-  // 只有用户信息获取成功后才获取文章列表
-  const { data: posts } = useQuery({
-    queryKey: ['posts', userId],
-    queryFn: () => fetchUserPosts(userId),
-    enabled: !!user,  // 依赖 user 存在
-  })
-
-  return <div>{/* ... */}</div>
+  // 修改对象状态
+  const [form, setForm] = useState({ name: "jack" });
+  const changeForm = () => {
+    setForm({
+      ...form,
+      name: "john",
+    });
+  };
+  return (
+    <div className="App">
+      <button onClick={handleClick}>{count}</button>
+      <button onClick={changeForm}>修改form{form.name}</button>
+    </div>
+  );
 }
+
+export default App;
+
 ```
 
-#### 3. 并行查询
+九、组件基础样式方案
+React组件基础的样式控制有两种方式
 
-```typescript
-function Dashboard() {
-  const users = useQuery({ queryKey: ['users'], queryFn: fetchUsers })
-  const posts = useQuery({ queryKey: ['posts'], queryFn: fetchPosts })
-  const comments = useQuery({ queryKey: ['comments'], queryFn: fetchComments })
+1. 行内样式(不推荐)
+2. class类名控制：一般是写一个 .css 文件,通过外部文件引入 .css 文件
 
-  // 使用 useQueries 更优雅
-  const results = useQueries({
-    queries: [
-      { queryKey: ['users'], queryFn: fetchUsers },
-      { queryKey: ['posts'], queryFn: fetchPosts },
-      { queryKey: ['comments'], queryFn: fetchComments },
-    ]
-  })
+十、className 插件的适用
+插件下载
 
-  const [usersQuery, postsQuery, commentsQuery] = results
+```javascript
+npm install classnames
+```
+
+使用案例
+
+```javascript
+import { useState } from "react";
+import "./index.css";
+function App() {
+  const [showColor, setShowColor] = useState(true);
+  const handleClick = () => {
+    setShowColor(!showColor);
+  };
+  return (
+    <div className="App">
+      <div className={showColor ? "red" : "blue"}>字体颜色</div>
+      <button onClick={handleClick}>改变颜色</button>
+    </div>
+  );
 }
+
+export default App;
+
 ```
 
----
+十一、input输入框双向绑定
 
-### 性能优化最佳实践
+```javascript
+import { useState } from "react";
+function App() {
+  // 1. 声明一个react状态
+  const [value, setValue] = useState(true);
 
-#### 1. 选择性订阅（避免不必要的重渲染）
+  return (
+    <div className="App">
+      <div>
+        <div>{value}</div>你好
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          type="text"
+        ></input>
+      </div>
+    </div>
+  );
+}
 
-```typescript
-// 不好：整个对象变化都会触发重渲染
-const { data } = useQuery({ queryKey: ['user', id], queryFn: fetchUser })
+export default App;
 
-// 好：只订阅需要的字段
-const name = useQuery({
-  queryKey: ['user', id],
-  queryFn: fetchUser,
-  select: (data) => data.name  // 只有 name 变化时才重渲染
-})
 ```
 
-#### 2. 使用 staleTi优化请求频率
+十二、React获取DOM
+使用 useRef 生成ref对象
 
-```typescript
-// 对于不常变化的数据，设置较长的 staleTime
-const { data } = useQuery({
-  queryKey: ['config'],
-  queryFn: fetchConfig,
-  staleTime: Infinity,  // 永不过期（适用于静态配置）
-})
+```javascript
+import { useRef } from "react";
+function App() {
+  // 1. 声明一个react状态
+  const inputRef = useRef(null);
+  // 2. 定义一个函数，用于获取dom元素
+  // 渲染完毕之后dom生成之后才可用
+  const showDom = () => {
+    console.log(inputRef.current.value);
+  };
+  return (
+    <div className="App">
+      <input type="text" ref={inputRef}></input>
+      <button onClick={showDom}>获取dom</button>
+    </div>
+  );
+}
 
-// 对于实时数据，使用轮询
-const { data } = useQuery({
-  queryKey: ['realtime'],
-  queryFn: fetchRealtime,
-  refetchInterval: 1000,  // 每秒刷新
-})
+export default App;
+
 ```
 
-#### 3. 错误重试策略
+十三、父传子基础实现
+1、props可传递任意的数据：数值、字符串、布尔值、数组、对象、函数、JSX
+2、props遵循单项数据流，所以props在子组件里面是只读对象：子组件只能读取props中的数据，不能直接进行修改，父组件的数据只能由父组件修改
 
-```typescript
-const { data } = useQuery({
-  queryKey: ['users'],
-  queryFn: fetchUsers,
-  retry: (failureCount, error) => {
-    // 404 错误不重试
-    if (error.response?.status === 404) return false
-    // 最多重试 3 次
-    return failureCount < 3
+```javascript
+// 父传子
+// 1. 父组件传递数据 子组件标签身上绑定属性
+// 2. 子组件接收数据 props的参数
+
+function Son(props) {
+  // props：对象里面包含了父组件传递过来的所有数据
+  return <div>this is son,{props.name}</div>;
+}
+
+function App() {
+  const name = "this is app name";
+  return (
+    <div className="App">
+      <Son name={name}></Son>
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+十四、父子组件通信-子传父
+核心思路：在子组件中调用父组件中的函数并传递参数
+
+```javascript
+import { useState } from "react";
+
+function Son({ onGetSonMsg }) {
+  // props：对象里面包含了父组件传递过来的所有数据
+  return (
+    <button onClick={() => onGetSonMsg("我是子组件传递过来的数据")}>
+      this is son
+    </button>
+  );
+}
+
+function App() {
+  const [mag, setMsg] = useState("");
+  const getMsg = (msg) => {
+    setMsg(msg);
+  };
+  return (
+    <div className="App">
+      <Son onGetSonMsg={getMsg}></Son>
+      <div>{mag}</div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+十五、兄弟组件通信，使用状态提升实现兄弟组件通信
+实现思路：借助 状态提升 机制，通过父组件进行兄弟组件之间的数据传递
+1、A组件先通过子传父的方式把数据传递给父组件APP
+2、App拿到数据后通过父传子的方式再歘递给B组件
+
+十六、使用Context机制夸层级组件通信
+实现步骤：
+1、使用createContext方法创建一个上下文对象Ctx
+2、在顶层组件（App）中通过Ctx.Provider组件提供数据
+3、在底层组件（B）中通过 useContext 钩子函数获取消费数据
+
+```javascript
+import { useState, createContext, useContext } from "react";
+
+// 1.createContext方法创建一个上下文对象
+const MsgContext = createContext();
+
+function Son1({ onGetSonMsg }) {
+  // props：对象里面包含了父组件传递过来的所有数据
+  return (
+    <div>
+      <button onClick={() => onGetSonMsg("我是子组件传递过来的数据")}>
+        this is son
+      </button>
+      <div>我是Son1</div>
+      <Son2 />
+    </div>
+  );
+}
+
+function Son2() {
+  const msg = useContext(MsgContext);
+  return <div>我是Son2,{msg}</div>;
+}
+
+function App() {
+  const [msg, setMsg] = useState("");
+  const getMsg = (msg) => {
+    setMsg(msg);
+  };
+  return (
+    <div className="App">
+      <MsgContext.Provider value={msg}>
+        <Son1 onGetSonMsg={getMsg}></Son1>
+      </MsgContext.Provider>
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+十七、useEffect的基础使用
+需求：在组件渲染完毕之后，立刻从服务端获取碰到列表数据并显示到页面中
+语法：
+
+```javascript
+useEffect(()=>{},[])
+```
+
+参数1是一个函数，可以把它叫做副作用函数，在函数内部可以防止要执行的操作
+参数2是一个数组（可选惨），在数组里防止依赖项，不同依赖项会影响第一个参数函数的执行，当是一个空数组的时候，副作用函数只会在组件渲染完毕之后执行一次
+
+useEffect依赖项参数说明
+useEffect副作用函数的执行时机存在多种情况，根据传入依赖项的不同，会有不同的执行表现
+
+| 依赖项 | 副作用函数执行时机  |
+| 没有依赖项 | 组件初始渲染 + 组件更新时执行(比如点击加号响应式数据数据累加，页面数据改变，会导致组件更新) |
+| 空数组依赖    | 只在初始渲染时执行一次 |
+| 添加特定依赖项    | 组件初始渲染+特定依赖项变化时执行 |
+
+十八、useEffect-清除副作用
+
+```javascript
+import { useEffect, useState } from "react";
+
+function Son1({ setSonShow }) {
+  useEffect(() => {
+    const timer = setInterval(() => {
+      console.log("一秒执行一次");
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+  return (
+    <div>
+      <button onClick={() => setSonShow(false)}>this is son</button>
+      <div>我是Son1</div>
+    </div>
+  );
+}
+
+function App() {
+  const [show, setShow] = useState(true);
+  const getShow = () => {
+    setShow(!show);
+  };
+  return (
+    <div className="App">{show && <Son1 setSonShow={getShow}></Son1>}</div>
+  );
+}
+
+export default App;
+
+```
+
+十九、自定义Hook函数
+概念：自定义Hook是以 use开头的函数，通过自定义Hook函数可以用来实现 逻辑的封装和复用
+
+ReactHooks 使用规则：
+1、只能在组件中或者其他自定义Hook函数中调用
+2、只能在组件的顶层调用，不能在嵌套在if、for、其它函数中。
+
+```javascript
+import { useState } from "react";
+
+const useShowHook = () => {
+  const [show, setShow] = useState(true);
+  const clickShow = () => {
+    setShow(!show);
+  };
+
+  return {
+    show,
+    clickShow,
+  };
+};
+
+function App() {
+  const { show, clickShow } = useShowHook();
+  return (
+    <div className="App">
+      <button onClick={() => clickShow()}>按钮</button>
+      {show && <div>你好呀</div>}
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+mock工具使用：json-server是一个快速以 .json 文件作为数据源模拟接口服务的工具
+
+二十、什么是Redux
+
+Redux 是React最常用的集中状态管理工具，类似于Vue中的Pinia（Vuex）,可以独立于框架运行
+作用：通过集中管理的方式管理应用的状态
+
+使用步骤：
+
+1. 定义一个 reducer 函数（根据当前想要做修改返回一个新的状态）
+2. 使用createStore方法传入 reducer 函数 生成一个store实例对象
+3. 使用store实例的 subscribe 方法订阅数据的变化（数据一旦变化，可以得到通知）
+4. 使用store实例的 dispatch 方法提交action对象 触发数据变化（告诉 reducer 你想怎么改数据）
+5. 使用store实例的 getState 方法获取当前状态更新到使用中
+
+核心概念：state、action、reducer
+
+1. state: 一个对象 存放这我们管理的数据状态
+2. action: 一个对象 用来描述你想怎么改数据
+3. reducer：一个函数 更局action的描述生成一个新的state
+
+二十一、react全装状态管理配套工具
+在React中使用redux，官方要求安装两个其他插件- Redux Toolkit 和 react-redux
+
+1. ReduxToolkit（RTK）- 官方推荐编写Redux逻辑的方式，是一套工具的集合集，简化书写方式（简化store的配置方式、内置immer支持可变式状态修改、内置thunk更好的异步创建）
+2. react-redux - 用来链接 Redux 和 React组件 的中间件（Redux  react-redux React组件: React组件中获取Redux的数据状态/由React组件更新状态到Redux中）
+
+安装两个依赖
+
+```javascript
+npm install @reduxjs/toolkit react-redux
+```
+
+创建react-redux的全局状态管理目录结构，如下图所示
+![alt text](image.png)
+
+1. 通常集中状态管理的部分都会单独创建一个单独的 ‘store’目录
+2. 应用通常会有多个子store模块，所以创建一个 `modules`目录，在内部编写业务分类的字store
+3. store中的入口文件 index.js 的作用是组合 modules 中所有的子模块，并导出 store
+
+ 基本使用：
+1、为React注入store
+react-redux负责把Redux和React链接起来,内置 Provider 组件 通过 store 参数创建好的store实例注入到应用中，链接正式建立
+![alt text](image-1.png)
+2、React组件使用store中的数据
+在React组件中使用store的数据，需要用到一个 钩子函数 userSelector,它的作用是把store中的数据映射到组件中：
+![alt text](image-2.png)
+3、React组件修改store中的数据
+React组件中修改store中的数据需要借另外一个hook函数 useDispatch,它的作用是生成提交action对象的dispatch函数，使用样例如下：
+![alt text](image-3.png)
+
+提交action传参实现需求
+在reducers的同步修改方法中添加action对象参数，在调用 actionCreater的时候传递参数，参数会被传递到action对象payload属性上
+![alt text](image-4.png)
+
+异步操作样板代码：
+
+1. 创建store的写法保持不变，配置好同步修改状态的方法
+2. 单独封装一个函数，在函数内部return一个新函数，在新函数中：
+  2.1 封装异步请求获取数据
+  2.2 调用同步actionCreator传入异步数据生成一个action对象，并用deispatch提交
+3. 组件中dispatch的写法保持不变
+![alt text](image-5.png)
+
+二十二、美团案例
+准备并熟悉环境
+
+1. 克隆项目到本地（内置了基础静态组件和模版）<http://git.itcast.cn/heimaqianduan/redux-meituan>
+2. 安装所有依赖  npm install
+3. 启动mock服务(内置了json-server) npm run serve
+4. 启动前端服务 npm run star
+
+二十三、创建路由开发环境
+使用路由我们还是采用CRA创建项目的方式进行基础环境配置
+
+1. 创建项目并安装所有依赖
+npx create-react-app react-router-pro
+npm install
+2. 安装最新的 ReactRouter包
+npm install react-router-dom
+3. 启动项目
+npm run start
+
+代码示例：最基本路由创建
+![alt text](image-6.png)
+
+ReactRouter-路由导航
+路由系统中的多个路由之间需要进行路由跳转，并且在跳转的同时有可能需要传递参数进行通信
+
+一、声明式导航：
+声明式导航是指通过在模板中通过‘<Link/>’组件描述出要跳转到哪里去，比如后台管理系统的左侧菜单通常使用这种方式进行
+语法说明：通过给组件的to属性指定要跳转到路由path,组件会被渲染为浏览器支持的a链接，如果需要传参直接通过字符串破解的方式破解参数即可
+
+```javascript
+import { Link } from "react-router-dom";
+<Link to="/home">首页</Link>
+```
+
+路由导航传参：
+![alt text](image-8.png)
+获取传参代码示例：
+
+```javascript
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+function Article() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const id = params.get("id");
+  const name = params.get("name");
+  return (
+    <div>
+      <h1>文章页</h1>
+      <p>id: {id}</p>
+      <p>name: {name}</p>
+      <button onClick={() => navigate("/login")}>去登录页</button>
+    </div>
+  );
+}
+
+export default Article;
+
+```
+
+二、编程式导航
+编程式导航是指通过 ‘useNavigate’ 钩子得到导航方法，然后通过调用方式以命令式的形式进行路由跳转，比如想在登陆请求完毕之后跳转就可以选择这种方式，更加灵活
+语法说明：通过调用 navigate方法传入地址path实现跳转
+![alt text](image-7.png)
+路由导航传参
+![alt text](image-9.png)
+注意：在路由也要添加一步参数配置：
+
+```javascript
+{
+    path: "/login/:id",
+    element: <Login></Login>,
   },
-  retryDelay: (attemptIndex) => {
-    // 指数退避：1s, 2s, 4s, 8s...
-    return Math.min(1000 * 2 ** attemptIndex, 30000)
-  },
-})
 ```
 
----
+二十四、嵌套路由
+在一级路由又内嵌了其他路由，这种关系就叫做嵌套路由，嵌套至一级路由内的路由又称作二级路由，例如下图所示：
+![alt text](image-10.png)
+实现步骤：
 
-### 简历中的实际含义
+1. 使用children属性配置路由嵌套关系
+2. 使用`<Outlet/>`组件配置二级路由渲染位置
+![alt text](image-11.png)
 
-当简历写"**使用 React Query 管理服务端状态，优化缓存策略**"时，表示你：
+二十五、404路由
+场景：当浏览器输入url的路径在整个路由配置中都找不到对应的path，为了用户体验，可以使用404兜底组件进行渲染
+实现步骤：
 
-1. ✅ **理解客户端状态和服务端状态的区别**
-2. ✅ **掌握现代化的数据获取方案**（React Query）
-3. ✅ **能够实现智能缓存策略**（staleTime、gcTime）
-4. ✅ **具备性能优化能力**（预取、乐观更新、去重请求）
-5. ✅ **了解数据同步和一致性**（invalidation、refetch）
-6. ✅ **能够处理复杂的异步场景**（分页、无限滚动、依赖查询）
+1. 准备一个NotFound组件
+2. 在路由表数组的末尾，以*号座位路由path配置路由
+![alt text](image-12.png)
 
-这体现了你：
-- 🎯 关注用户体验（减少 loading、优化响应速度）
-- 🎯 注重性能优化（减少不必要的请求）
-- 🎯 代码质量高（简洁、可维护）
-- 🎯 具备架构思维（合理的缓存策略设计）
+二十六、两种路由模式
+在各个主流框架的路由常用的路由模式有两种，history模式和hash模式，ReactRouter分别由createBrowerRouter和createHashRouter函数负责创建
+![alt text](image-13.png)
 
----
+二十七、别名路径配置
 
-### 总结对比
+1. 路径解析配置（webpack），把 @/ 解析为 src/
+2. 路径联想配置（vscode），在vscode中输入@/时，能够联想出 src/ 目录下的文件
+![alt text](image-14.png)
+路径解析配置
+CRA本身把webpack配置包装到了黑盒里无法直接修改，需要借助一个插件 - craco
+配置步骤：
+  安装craco: npm install -D @craco/craco
+  项目根目录下创建配置文件：craco.config.js
+  配置文件中添加路径解析配置
+  包文件中配置启动和打包命令
+  ![alt text](image-15.png)
 
-| 特性 | 传统方式 | React Query |
-|------|---------|-------------|
-| 状态管理 | 手动管理 loading/error/data | 自动管理 |
-| 缓存 | 无或手动实现 | 自动缓存 + 智能失效 |
-| 请求去重 | 无 | 自动去重 |
-| 后台刷新 | 需要手动实现 | 自动后台刷新 |
-| 重试机制 | 需要手动实现 | 内置重试 + 指数退避 |
-| 乐观更新 | 复杂 | 简单易用 |
-| 预取数据 | 需要手动实现 | 一行代码实现 |
-| 开发工具 | 无 | DevTools 可视化调试 |
-| 代码量 | 多 | 少（减少 70%+） |
+联想路径配置：
+VsCode的联想配置，需要我们在项目目录下添加 jsconfig.json 文件，加入配置之后VsCode会自动读取配置帮助我们自动联想配置
+配置步骤：
+  根目录下新增配置文件 - jsconfig.json
+  添加路径提示配置
+![alt text](image-16.png)
 
-**核心价值**：React Query 通过智能缓存和自动化的数据同步机制，让开发者专注于业务逻辑，而不是处理繁琐的状态管理和数据获取细节。
+二十八、json-sercer实现数据Mock
+json-server是一个node包，可以在不到30秒内获得零编码的完整的Mock服务
+实现步骤：
+项目中安装 json-server：npm install -D json-server
+准备json文件
+添加启动命令
+![alt text](image-17.png)
+访问接口进行测试
