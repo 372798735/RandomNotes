@@ -16,7 +16,7 @@ SELECT * FROM 表名；
 SELECT 列1, 列2 FROM  表名;
 
 -- 带条件查询
-SELECT * FROM 表明 WHERE 条件;
+SELECT * FROM 表名 WHERE 条件;
 -- 例子：查询年龄大于18的用户
 SELECT * FROM users WHRER age > 18;
 
