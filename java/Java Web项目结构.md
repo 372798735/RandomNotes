@@ -927,6 +927,142 @@ public class StudentCourseController {
 - 7. 接口调用
 GET 请求方法：
 http://172.16.57.59:8190/api/student/1/courses
+### 离线发票上传-已上传 查询接口查询
+```java
+@ApiOperation("离线发票上传---已上传"） 
+@PostMapping("/querySettAndInvoice")
+public ResultResponse querySettAndInvoice(@RequestBody SettlementBillVO param){
+    try{
+        LogUtils.info("====== 开始进行离线发票上传-已上传数据查询 ======");
+        int totalCount = settlementBillFacade.getSettlementBillCount(param);
+        List<ElecSettlementBillAndInvoiceVO> settInvoiceList =
+        settlementBillFacade.querySettlemetBillAndInvoiceConn(param);
+        List<InvoiceConnExportVo> dataList = tranExportDataVo(settInvoiceList);
+        Map<String， Object> resultMap = new HashMap<>();
+        resultMap.put("totalCount", totalCount);
+        resultMap·put("dataList"，dataList);
+        return ResultResponse.success("查询结算单与发票数据成功"，resultMap);
+    } catch (Exception e) {
+        return ResultResponse.fail(e.getMessage());
+    } finally {
+        LogUtils.info("【======结束离线法皮哦啊上传-已上传数据查询");
+   }
+}
+```
+### 离线发票上传-待上传
+1. 新建文件：SettlementBillController.java
+```java 
+import org.springframework.web.bind.annotation.RequestBody;
+@PostMapping（"/querySettlementBillPage"）
+public ResultResponse querySettlementBillPage（@RequestBody final SettlementBillV0 param) {
+try {
+    // 对 stime 和 etime 进行字符串替换操作
+    param.setStime(param.getStime().replace( target: "-", replacement: ""));
+    param.setEtime(param.getEtime().replace( target: "-", replacement: ""));
+    // getFacade() 获取外观（Facade）对象，执行数据库查询
+    List<SettlementBillV0> settlementBilLList= getFacade().queryFacadeSettlementBill(param);
+    // 查询总数量
+    int totalCount = getFacade(）.getSettlementBillCount(param);
+    Map<String， Object> resuLtMap = new HashMap<>();
+    resultMap.put("totalCount", totalCount);
+    resultMap·put("settlementBillList", settlementBillList);
+    returnResultResponse.success（msg:"查询结算单数据成功"，resultMap）;
+  } catch (Exception e) {
+    return ResultResponse.fail(e.getMessage());
+  }
+}
+```
+
+2. 查询的具体列表数据的方法
+文件：SettlementBillFacade.java
+```java
+public List<SettlementBillV0> queryFacadeSettlementBill(final SettlementBillV0 vo) {
+  LogUtils.info("开始查询结算单数据，电费年月" + vo.getStime())；
+  // 声明一个不可变引用 lis, 指向一个空的 ArrayList, 用于存放 SettlementBillVo 对象
+  final List<SettlementBillVo> lis = new ArrayList<>();
+  //检查是否为空
+  if (!vo.getFeeType.trim().isEmpty()) {
+      // 将费用类型字符串按逗号分割成数组
+      final String[] feeTypeList = vo.getFeeType().split(",");
+      // 遍历每一种费用类型 
+      for (final String type : feeTypeList) {
+        LogUtils.info("开始调用语句查询数据，费用类型为"+type)；
+        // 调用 getNewSettlementBillVo 方法，根据原始 vo 和当前费用类型 type 构造一个新的 SettlementBillV0 对象
+        SettlementBillV0 settlementBillV0 = this.getNewSettlementBillVo(vo, type);
+        // 调用 querySettleMentBill 方法，传入构造好的 settlementBillVo，返回拆线呢结果列表 li, 元素类型为 SettlementBillV0
+        final List<SettlementBillV0> li = this.querySettleMentBill(settlementBillVo);
+        // 下面判断条件的逻辑永远进不去
+        if (CollectionUtils.isNotEmpty(li)) {
+            for （SettlementBillVo bill:li) {
+               bill.setFeeType(type);
+               if （bitl.getElectricityFeeExclTax() ！= null && bill.getTaxRate(） != null） {
+                  final BigDecimal df = new BigDecimal(bill.getElectricityFeeExclTax）.trim()
+                  final BigDecimal sl= new BigDecimal(bill.getTaxRate(）.trim());
+                  final BigDecimal sj = df.multiply(sl);
+                  bill.setTaxMoney(sj.toString));
+               }
+            }
+            lis.addAll(li);
+         }
+         if(li !== null){
+          li.clear();
+         }   
+      }        
+   }
+   return lis;
+}
+```
+
+3. 查询总数的方法
+```java
+public int getSettLementBillCount（final SettlementBillV0 vo){
+  int count = 0;
+  if (!vo.getFeeType().trim().isEmpty()){
+      final String[] feeTypeList = vo.getFeeType().split(',');
+      for (final String type : feeTypeList) {
+          final SettlementBillV0 query = getNewSettlementBillVo(vo, type);
+          // 获取 集中式、非居民分布式、居民分布式 类型的总数据
+          if(FeeTypeCodeEnum.FEE_TYPE_CENT.getKey().equals(type) ||
+             FeeTypeCodeEnum.FEE_TYPE_DIST.getKey().equals(type) || 
+             FeeTypeCodeEnum.FEE_TYPE_DNP.getKey().equals(type)) {
+          count = count + this.querySettleMentBillPwrCount(query); 
+        // 获取 售电类型的总数据
+      } else if (FeeTypeCodeEnum.FEE_TYPE_SELC.getKey().equals(type)) {
+         count = count + this.querySettleMentBillSellerCount(query); 
+      }
+    }
+  }
+  return count;
+}
+```
+文件：SettlementBillFacade.java
+方法: getNewSettlementBillVo()
+```java
+// 这个方法返回的是一个对象
+private SettlementBillVo getNewSettlementBillVo(final SettlementBillVo vo, final String type){
+  final SettlementBillV0 query = new SettlementBillVo();
+  query.setIsPage(vo.getIsPage());
+  query.setStime(vo.getStime());
+  query.setEtime(vo.getEtime());
+  query.setSettlementNo(vo.getSettlementNo());
+  query.setEnergyType(vo.getEnergyType());
+  query.setPlantCode(vo.getPlantCode());
+  query.setPlantName(vo.getPlantName());
+  query.setFeeType(type);
+  //总电费，-1代表负数账单，1代表正数账单
+  query.setTotalElectricityFee(vo.getTotalElectricityFee());
+  query.setInvoiceStatus(vo.getInvoiceStatus());
+  query.setPageNo(vo.getPageNo());
+  query.setPageSize(vo.getPageSize());
+  query.setInvoiceStatus(vo.getInvoiceStatus());
+  query.setPaymentStatus(vo.getPaymentStatus());
+  query.setBureauCode(vo.getBureauCode());
+  query.setProvinceCode(vo.getProvinceCode());
+  query.setSettlementNoList(vo.getSettlementNoList());
+  return query;
+}
+```
+
 ### 如何实现微服务
 ### 什么是 DBeaver
 概述：DBeaver 是一个免费、开源、跨平台的通用数据库客户端和管理工具
