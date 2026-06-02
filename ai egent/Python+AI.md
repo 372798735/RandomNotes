@@ -1150,3 +1150,246 @@ user_info('TOM', 20 , '男')
 ### 3. 掌握不定长参数
 
 ### 4. 掌握缺省参数
+
+#### 文件读取操作2：
+
+3. for循环读取文件行
+
+```python
+for line in open("python.txt", "r")
+  print(line)
+# 每一个line临时变量，就记录了文件的一行数据
+```
+
+#### 文件写入操作
+
+注意：
+
+- 直接调用write，内容并未真正写入文件，而是会积攒在程序的内存中，称之为缓冲区
+- 当调用flush的时候，内容会真正写入文件
+- 这样做是避免频繁的操作硬盘，导致效率下降（攒一堆，一次性写磁盘）
+  例子：
+
+```python
+# 1. 打开文件
+f = open("D:/file/hi.txt", "w", encoding="utf-8")
+
+# 2. 文件写入
+f.write("Hello World")
+
+# 3.内容刷新
+f.flush()
+
+# 4. 关闭
+f.close()
+```
+
+#### 文件的追加
+
+例子：
+
+```python
+# 1. 打开文件
+f = open("D:/file/hi.txt", "a", encoding="utf-8")
+
+# 2. 文件写入
+f.write("Hello World\n")
+
+# 3.内容刷新
+f.flush()
+
+# 4. 关闭
+f.close()
+```
+
+#### 扩展-b模式操作非文本文件
+
+定义：操作非文本的文件，比如视频、音频等
+例子：
+
+```python
+# 打开
+fr = open("D:/测试.mkv", "rb")
+fw = open("E:/测试.mkv", "wb")
+content = fr.read()
+fw.write(content)
+
+# close
+fr.close()
+fw.close()
+```
+
+## 20. 异常的概念
+
+### 1. 了解异常
+
+定义：异常就是程序运行的过程中出现了错误
+bug的历史由来：bug就是指异常的意思，历史因为小虫子导致计算机失灵的案例，所以延续至今，bug就代表软件出现错误。
+
+### 2. 异常的捕获方法
+
+1. 基本语法：
+
+```md
+try:
+可能发生错误的代码
+except:
+如果出现异常执行的代码
+```
+
+例子：尝试以'r'模式打开文件，如果文件不存在，则以'w'方式打开。
+
+```python
+try:
+   f = open('linux.txt', 'r')
+except:
+   f = open('linux.txt', 'w')
+```
+
+语法：
+
+```md
+try:
+可能出现异常的代码
+except 异常类型 as 变量:
+出现异常的处理代码
+except 异常类型 as 变量:
+出现异常的代码
+......
+else:
+没有异常的代码处理
+finally:
+有没有异常都会执行的代码
+```
+
+- try 只有在try内部的代码，才会被捕获异常
+- except 是匹配机制，用来匹配特定异常
+- 特殊异常类型：Exception所有异常的父类（顶级异常），任何异常都可以用 Exception 抓住
+- else(可选)，没有异常的时候，会进入else语句段
+- finally(可选) 有没有异常，都会执行
+
+例子：
+
+```python
+try:
+    f = open("D:/file/he.txt", "r", encoding="utf-8")
+    content = f.read()
+    print('content', content)
+    f.close()
+except FileNotFoundError as e:
+    print('File not found',e)
+except FileExistsError as e:
+    print('File exists',e)
+except Exception as e:
+    print(e)
+else:
+    print('else')
+finally:
+    print('finally')
+```
+
+2. 异常的传递性：
+   当函数func01中发生异常，并且没有捕获处理这个异常的时候，异常会传递到函数func02,当func02也没有捕获处理这个异常的时候main函数
+   会捕获这个异常，这个就是异常的传递性。
+
+例子：
+
+```python
+def f02():
+    print('02start')
+    1/0
+    print('02end')
+
+def f01():
+    print('01start')
+    f02()
+    print('01end')
+
+def main():
+    f01()
+
+try:
+    main()
+except Exception as e:
+    print('有异常', e)
+```
+
+### 3. 异常综合案例
+
+### 4. Python模块
+
+定义：Python 模块(Module)，是一个 Python 文件，以 .py 结尾，模块能定义函数，类和变量，模块里也能包含可执行的代码
+模块的导入方式：
+模块在使用前需要先导入，导入的语法入如下：
+
+```md
+[from 模块名] import [模块 | 类 | 变量 | 函数 | * ] [as 别名]
+常用的组合形式如：
+
+- import 模块名
+- from 模块名 import 类、变量、方法等
+- from 模块名 import \*
+- import 模块名 as 别名
+- from 模块名 import 功能名 as 别名
+```
+
+自定义模块：
+在Python代码文件中正常写代码即可，通过import、from关键字和导入Python内置模块一样导入即可使用
+
+*mian*变量的功能是：
+if **main** == "**main**" 表示，只有当程序是直接执行的才会进入if内部，如果是被导入的，则if无法进入，通常将要在模块立即执行的方法会放在这里。打印这个变量，当这个文件被使用导入时，可以直接打印出这个文件名称
+
+### 5. Python包
+
+定义：从物理上看，包就是一个文件夹，在该文件夹下包含了一个 _init_.py 文件，该文件夹可用于包含多个模块文件，从逻辑上看，包的本质依然是模块
+包的作用：当我们的模块文件越来越多时，包可以帮助我们管理这些模块，包的作用就是包含多个模块，但包的本质依然是模块。
+
+自定义包：
+
+```python
+# module1.py
+def say_hello():
+    print("Hello World")
+```
+
+```python
+# module1.py
+def say_hello():
+    print("Hello World")
+```
+
+```python
+# module2.py
+def action():
+    print("跳舞")
+```
+
+```python
+# __init__.py
+__all__ = ['module1', 'module2']
+```
+
+```python
+# main.py
+from my_package import *
+module1.say_hello() # 结果：Hello World
+module2.action()    # 结果：跳舞
+```
+
+总结：
+
+- 什么是Python包：包是一个文件夹，里面可以存放许多Python的模块（代码文件），通过包，在逻辑上将一批模块归为一类，方便使用
+- **init**.py 文件的作用：创建包会默认自动创建的文件，通过这个文件来表示一个文件夹是Python的包，而非普通的文件夹
+- **all**变量的作用：同模块中学习到的是一个作用，控制 import \* 能够导入的内容
+
+### 6. 安装第三方包
+
+安装第三方包语法：
+
+- 1、通过pip安装
+
+```md
+pip install 包名称
+```
+
+- 2、在PyCharm中安装
